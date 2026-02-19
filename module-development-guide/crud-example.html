@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مثال CRUD كامل | Digilians Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>مثال CRUD متكامل</h1>
+        <p>بناء موديول "الأخبار" (News) بالمعمارية الصحيحة</p>
+    </header>
+
+    <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="create-module.html">إنشاء موديول</a>
+        <a href="structure.html">الهيكل البرمجي</a>
+        <a href="routes.html">المسارات (Routes)</a>
+        <a href="controllers.html">المتحكمات (Controllers)</a>
+        <a href="permissions.html">الصلاحيات</a>
+        <a href="settings.html">الإعدادات</a>
+        <a href="crud-example.html">مثال CRUD</a>
+        <a href="velzon-ui.html">واجهة Velzon</a>
+        <a href="en/crud-example.html">English</a>
+    </nav>
+
+    <div class="container">
+        <h2>مرحلة الـ Infrastructure</h2>
+        <p>1. إنشاء الـ Model:</p>
+        <pre>class Article extends Model {
+    use LogsActivity; // لتتبع التغييرات آلياً
+    protected $fillable = ['title', 'content'];
+}</pre>
+
+        <p>2. إنشاء الـ Repository:</p>
+        <pre>class ArticleRepository extends BaseRepository implements ArticleRepositoryInterface {
+    // استخدم BaseRepository للحصول على find, create, update مجاناً
+}</pre>
+
+        <h2>مرحلة الـ Application</h2>
+        <p>3. إنشاء الـ Service:</p>
+        <pre>class ArticleService extends BaseService {
+    public function publishArticle(array $data) {
+        // منطق النشر، إرسال إشعارات، إلخ...
+        return $this->repository->create($data);
+    }
+}</pre>
+
+        <h2>مرحلة الـ Http</h2>
+        <p>4. إنشاء الـ Controller:</p>
+        <pre>public function store(ArticleRequest $request) {
+    $this->service->publishArticle($request->validated());
+    return $this->successResponse('تم النشر بنجاح');
+}</pre>
+
+        <div class="alert">
+            <strong>نظام الأرشفة:</strong> لاحظ استخدام <code>LogsActivity</code> في الموديل؛ هذا سيجعل النظام يسجل
+            تلقائياً "قام فلان بإضافة مقال بعنوان كذا" في الـ Audit Logs بدون أي سطر كود إضافي.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,168 @@
+:root {
+    --primary: #405189;
+    --secondary: #3577f1;
+    --success: #0ab39c;
+    --dark: #212529;
+    --light: #f3f3f9;
+    --white: #ffffff;
+    --gray: #878a99;
+    --danger: #f06548;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Cairo';
+    line-height: 1.6;
+    color: var(--dark);
+    background-color: var(--light);
+}
+
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="ltr"] {
+    direction: ltr;
+    text-align: left;
+}
+
+header {
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav {
+    background: var(--white);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+nav a:hover {
+    background: var(--light);
+}
+
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: var(--white);
+    padding: 3rem;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+h1,
+h2,
+h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+code {
+    background: #f1f1f1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95em;
+    color: var(--danger);
+}
+
+pre {
+    background: #2d2d2d;
+    color: #ccc;
+    padding: 1.5rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    direction: ltr;
+    text-align: left;
+}
+
+.alert {
+    padding: 1rem;
+    background: var(--light);
+    margin: 1.5rem 0;
+}
+
+[dir="rtl"] .alert {
+    border-right: 5px solid var(--primary);
+}
+
+[dir="ltr"] .alert {
+    border-left: 5px solid var(--primary);
+}
+
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.steps {
+    list-style: none;
+}
+
+.steps li {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+[dir="rtl"] .steps li {
+    padding-right: 2.5rem;
+}
+
+[dir="ltr"] .steps li {
+    padding-left: 2.5rem;
+}
+
+.steps li::before {
+    content: attr(data-step);
+    position: absolute;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+[dir="rtl"] .steps li::before {
+    right: 0;
+}
+
+[dir="ltr"] .steps li::before {
+    left: 0;
+}

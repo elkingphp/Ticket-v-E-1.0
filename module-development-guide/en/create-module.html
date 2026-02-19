@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Module | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>How to Create a New Module</h1>
+        <p>Basic steps to build an independent software unit</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../create-module.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Step 1: Using the Artisan Command</h2>
+        <p>We use the <code>nwidart/laravel-modules</code> package to create the basic structure. Run the following
+            command in your terminal:</p>
+        <pre>php artisan module:make Inventory</pre>
+        <p>This command will create an <code>Inventory</code> folder inside the main <code>Modules</code> directory.</p>
+
+        <ul class="steps">
+            <li data-step="1">
+                <h3>Set up Autoloading</h3>
+                <p>Ensure you update the <code>composer.json</code> file inside the new module to work with our layered
+                    system. The psr-4 section should look like this:</p>
+                <pre>"autoload": {
+    "psr-4": {
+        "Modules\\Inventory\\": "./"
+    }
+}</pre>
+            </li>
+            <li data-step="2">
+                <h3>Update Directories</h3>
+                <p>Create the core layer directories as agreed:</p>
+                <ul>
+                    <li><code>Domain/Models</code>, <code>Domain/Interfaces</code></li>
+                    <li><code>Application/Services</code>, <code>Application/Policies</code></li>
+                    <li><code>Infrastructure/Repositories</code>, <code>Infrastructure/Database/Migrations</code></li>
+                </ul>
+            </li>
+            <li data-step="3">
+                <h3>Run the Command</h3>
+                <p>After changing autoload paths, run the following command:</p>
+                <pre>composer dump-autoload</pre>
+            </li>
+        </ul>
+
+        <div class="alert">
+            <strong>Tip:</strong> Always start by creating migrations in the
+            <code>Infrastructure/Database/Migrations</code> folder to define your module's database schema.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

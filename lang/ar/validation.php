@@ -1,0 +1,52 @@
+<?php
+
+return [
+    'accepted' => 'يجب قبول :attribute.',
+    'active_url' => ':attribute ليس عنوان URL صالحًا.',
+    'after' => 'يجب أن يكون :attribute تاريخًا بعد :date.',
+    'alpha' => 'يجب أن يحتوي :attribute على أحرف فقط.',
+    'alpha_dash' => 'يجب أن يحتوي :attribute على أحرف وأرقام وشرطات وشرطات سفلية فقط.',
+    'alpha_num' => 'يجب أن يحتوي :attribute على أحرف وأرقام فقط.',
+    'array' => 'يجب أن يكون :attribute مصفوفة.',
+    'before' => 'يجب أن يكون :attribute تاريخًا قبل :date.',
+    'between' => [
+        'numeric' => 'يجب أن يكون :attribute بين :min و :max.',
+        'file' => 'يجب أن يكون :attribute بين :min و :max كيلوبايت.',
+        'string' => 'يجب أن يكون :attribute بين :min و :max حرفًا.',
+        'array' => 'يجب أن يحتوي :attribute على ما بين :min و :max عنصرًا.',
+    ],
+    'boolean' => 'يجب أن يكون حقل :attribute صحيحًا أو خاطئًا.',
+    'confirmed' => 'تأكيد :attribute غير متطابق.',
+    'date' => ':attribute ليس تاريخًا صالحًا.',
+    'date_format' => ':attribute لا يتوافق مع التنسيق :format.',
+    'different' => 'يجب أن يكون :attribute و :other مختلفين.',
+    'digits' => 'يجب أن يكون :attribute :digits أرقام.',
+    'email' => 'يجب أن يكون :attribute عنوان بريد إلكتروني صالحًا.',
+    'exists' => ':attribute المحدد غير صالح.',
+    'image' => 'يجب أن يكون :attribute صورة.',
+    'integer' => 'يجب أن يكون :attribute عددًا صحيحًا.',
+    'max' => [
+        'numeric' => 'يجب ألا يكون :attribute أكبر من :max.',
+        'file' => 'يجب ألا يكون :attribute أكبر من :max كيلوبايت.',
+        'string' => 'يجب ألا يكون :attribute أكبر من :max حرفًا.',
+        'array' => 'يجب ألا يحتوي :attribute على أكثر من :max عنصرًا.',
+    ],
+    'min' => [
+        'numeric' => 'يجب أن يكون :attribute على الأقل :min.',
+        'file' => 'يجب أن يكون :attribute على الأقل :min كيلوبايت.',
+        'string' => 'يجب أن يكون :attribute على الأقل :min حرفًا.',
+        'array' => 'يجب أن يحتوي :attribute على الأقل :min عنصرًا.',
+    ],
+    'required' => 'حقل :attribute مطلوب.',
+    'unique' => 'قيمة :attribute مستخدمة من قبل.',
+    'url' => 'تنسيق :attribute غير صالح.',
+
+    'attributes' => [
+        'first_name' => 'الاسم الأول',
+        'last_name' => 'اسم العائلة',
+        'email' => 'البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'phone' => 'رقم الهاتف',
+        'avatar' => 'الصورة الشخصية',
+    ],
+];

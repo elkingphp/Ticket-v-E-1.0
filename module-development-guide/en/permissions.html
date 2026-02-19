@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Permissions | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Modular Permissions System</h1>
+        <p>Linking Functions to User Roles</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../permissions.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>How to Define New Permissions</h2>
+        <p>Our system adds a <code>module</code> column to the permissions table for easy separation and source
+            tracking.</p>
+
+        <h3>1. In Migration File</h3>
+        <p>It is recommended to add the basic permissions for the module upon installation:</p>
+        <pre>use Modules\Core\Domain\Models\Permission;
+
+public function up()
+{
+    Permission::findOrCreate('inventory.view', 'web', 'Inventory');
+    Permission::findOrCreate('inventory.create', 'web', 'Inventory');
+}</pre>
+
+        <h3>2. Create Policy</h3>
+        <p>Create a Policy file in <code>Application/Policies</code>:</p>
+        <pre>class InventoryPolicy
+{
+    public function view(User $user) {
+        return $user->hasPermissionTo('inventory.view');
+    }
+}</pre>
+
+        <h3>3. Register Policy</h3>
+        <p>In <code>Providers/InventoryServiceProvider.php</code>:</p>
+        <pre>public function boot()
+{
+    Gate::policy(InventoryItem::class, InventoryPolicy::class);
+}</pre>
+
+        <h3>4. Usage in View</h3>
+        <pre>@can('inventory.create')
+    &lt;button&gt;Add New Item&lt;/button&gt;
+@endcan</pre>
+
+        <div class="alert">
+            <strong>Feature:</strong> When disabling or deleting a module, the system automatically cleans up associated
+            permissions.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

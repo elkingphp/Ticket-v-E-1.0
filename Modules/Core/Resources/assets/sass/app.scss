@@ -1,0 +1,164 @@
+// Core Styles inspired by Velzon
+:root {
+    --vz-primary: #405189;
+    --vz-secondary: #3577f1;
+    --vz-success: #0ab39c;
+    --vz-info: #299cdb;
+    --vz-warning: #f7b84b;
+    --vz-danger: #f06548;
+    --vz-body-bg: #f3f3f9;
+    --vz-card-bg: #fff;
+    --vz-text-muted: #878a99;
+}
+
+[data-bs-theme="dark"] {
+    --vz-body-bg: #1a1d21;
+    --vz-card-bg: #212529;
+}
+
+body {
+    font-family: 'Inter', 'Cairo', sans-serif;
+    background-color: var(--vz-body-bg);
+}
+
+// RTL Logic & Bootstrap Utilities
+[dir="rtl"] {
+    text-align: right;
+
+    .ms-auto {
+        margin-right: auto !important;
+        margin-left: 0 !important;
+    }
+
+    .me-auto {
+        margin-left: auto !important;
+        margin-right: 0 !important;
+    }
+
+    .float-end {
+        float: left !important;
+    }
+
+    .float-start {
+        float: right !important;
+    }
+
+    .text-end {
+        text-align: left !important;
+    }
+
+    .text-start {
+        text-align: right !important;
+    }
+
+    .form-check {
+        padding-right: 1.5em;
+        padding-left: 0;
+
+        .form-check-input {
+            float: right;
+            margin-right: -1.5em;
+            margin-left: 0;
+        }
+    }
+}
+
+// Auth Pages Styling
+.auth-page-wrapper {
+    position: relative;
+    min-height: 100vh;
+}
+
+.auth-one-bg {
+    background-image: linear-gradient(to right, #405189, #0ab39c);
+    background-position: center;
+    background-size: cover;
+    padding: 160px 0 160px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.auth-one-bg .bg-overlay {
+    background: linear-gradient(to right, #364574, #405189);
+    opacity: 0.9;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0;
+}
+
+.auth-one-bg .shape {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.auth-one-bg .shape svg {
+    width: 100%;
+    height: auto;
+    fill: var(--vz-body-bg);
+}
+
+.auth-page-content {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 120px;
+}
+
+// Card
+.card {
+    background-color: var(--vz-card-bg);
+    border: none;
+    box-shadow: 0 1px 2px rgba(56, 65, 74, 0.15);
+    border-radius: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.text-primary {
+    color: var(--vz-primary) !important;
+}
+
+.text-muted {
+    color: var(--vz-text-muted) !important;
+}
+
+// Forms
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.9rem;
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.btn-success {
+    color: #fff;
+    background-color: #0ab39c;
+    border-color: #0ab39c;
+
+    &:hover {
+        background-color: #099885;
+        border-color: #088f7d;
+    }
+}

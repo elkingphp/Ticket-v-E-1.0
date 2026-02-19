@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Settings | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>System Settings</h1>
+        <p>Managing Module Variables Flexibly and Efficiently</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../settings.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Using SettingsService</h2>
+        <p>The Core module provides a central service for managing settings stored in the database and cached in Redis.
+        </p>
+
+        <h3>1. Saving a New Setting</h3>
+        <p>You can do this in a Seeder or Controller:</p>
+        <pre>use Modules\Core\Application\Services\SettingsService;
+
+public function __construct(SettingsService $settings) {
+    $this->settings = $settings;
+}
+
+// Save encrypted setting
+$this->settings->set('api_key', '12345', 'Inventory', 'string', true);</pre>
+
+        <h3>2. Fetching a Setting</h3>
+        <pre>$val = $this->settings->get('api_key', 'default_value');</pre>
+
+        <h3>Technical Features:</h3>
+        <ul>
+            <li><strong>Singleton:</strong> Settings are loaded only once per Request.</li>
+            <li><strong>Flash Cache:</strong> Rapid memory (Redis) is updated immediately upon any change.</li>
+            <li><strong>Auto-Encryption:</strong> Sensitive values are automatically encrypted with AES-256 if
+                <code>is_encrypted = true</code>.</li>
+        </ul>
+
+        <h3>Supported Data Types:</h3>
+        <p><code>string, integer, boolean, array, json</code></p>
+
+        <div class="alert">
+            <strong>Tip:</strong> Use settings for values changed by the admin (like enabling a feature or linking an
+            external API), not for storing constantly changing data.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full CRUD Example | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Full CRUD Example</h1>
+        <p>Building a "News" Module with Correct Architecture</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../crud-example.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Infrastructure Layer</h2>
+        <p>1. Create Model:</p>
+        <pre>class Article extends Model {
+    use LogsActivity; // For automatic change tracking
+    protected $fillable = ['title', 'content'];
+}</pre>
+
+        <p>2. Create Repository:</p>
+        <pre>class ArticleRepository extends BaseRepository implements ArticleRepositoryInterface {
+    // Use BaseRepository to get find, create, update for free
+}</pre>
+
+        <h2>Application Layer</h2>
+        <p>3. Create Service:</p>
+        <pre>class ArticleService extends BaseService {
+    public function publishArticle(array $data) {
+        // Publishing logic, sending notifications, etc...
+        return $this->repository->create($data);
+    }
+}</pre>
+
+        <h2>Http Layer</h2>
+        <p>4. Create Controller:</p>
+        <pre>public function store(ArticleRequest $request) {
+    $this->service->publishArticle($request->validated());
+    return $this->successResponse('Published Successfully');
+}</pre>
+
+        <div class="alert">
+            <strong>Audit System:</strong> Note the use of <code>LogsActivity</code> in the Model; this will
+            automatically log "User X added article titled Y" in the Audit Logs without any extra line of code.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

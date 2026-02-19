@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Structure | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Module Programming Structure</h1>
+        <p>Understanding Layered Architecture</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../structure.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Why use layers?</h2>
+        <p>The goal is to separate "what the code does" from "how it reaches data" and "how it responds to the browser."
+        </p>
+
+        <h3>1. Domain Layer (The Heart)</h3>
+        <p>Contains core business logic and rules that do not change:</p>
+        <ul>
+            <li><strong>Models:</strong> Data definition and relationships.</li>
+            <li><strong>Interfaces:</strong> Contracts that Repositories adhere to.</li>
+            <li><strong>Events:</strong> Events fired by the module.</li>
+        </ul>
+
+        <h3>2. Application Layer (The Engine)</h3>
+        <p>Controls workflow operations:</p>
+        <ul>
+            <li><strong>Services:</strong> Aggregating complex operations in one place.</li>
+            <li><strong>Policies:</strong> Determining who can do what.</li>
+            <li><strong>Jobs:</strong> Background tasks.</li>
+        </ul>
+
+        <h3>3. Infrastructure Layer (The Store)</h3>
+        <p>Deals with external technology (Database, Files):</p>
+        <ul>
+            <li><strong>Repositories:</strong> Implementing SQL queries via interfaces.</li>
+            <li><strong>Database:</strong> Migrations and seeders.</li>
+        </ul>
+
+        <h3>4. Http Layer (The Interface)</h3>
+        <p>Connection point with the user:</p>
+        <ul>
+            <li><strong>Controllers:</strong> Receive requests and direct them to services.</li>
+            <li><strong>Requests:</strong> Validation of input data.</li>
+        </ul>
+
+        <div class="alert">
+            <strong>Golden Rule:</strong> The Controller should be "Thin," and the Service is the one doing the heavy
+            lifting.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

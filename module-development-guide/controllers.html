@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة المتحكمات (Controllers) | Digilians Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>المتحكمات (Controllers)</h1>
+        <p>نقطة الانطلاق لمعالجة الطلبات</p>
+    </header>
+
+    <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="create-module.html">إنشاء موديول</a>
+        <a href="structure.html">الهيكل البرمجي</a>
+        <a href="routes.html">المسارات (Routes)</a>
+        <a href="controllers.html">المتحكمات (Controllers)</a>
+        <a href="permissions.html">الصلاحيات</a>
+        <a href="settings.html">الإعدادات</a>
+        <a href="crud-example.html">مثال CRUD</a>
+        <a href="velzon-ui.html">واجهة Velzon</a>
+        <a href="en/controllers.html">English</a>
+    </nav>
+
+    <div class="container">
+        <h2>أين توضع المتحكمات؟</h2>
+        <p>توضع المتحكمات في مجلد <code>Http/Controllers</code> داخل الموديول.</p>
+
+        <h3>القاعدة الذهبية</h3>
+        <p>المتحكم لا يجب أن يحتوي على منطق معقد أو استعلامات DB مباشرة. يجب أن يستدعي "الخدمة" (Service).</p>
+
+        <pre>namespace Modules\Inventory\Http\Controllers;
+
+use Modules\Core\Http\Controllers\BaseController;
+use Modules\Inventory\Application\Services\ItemService;
+use Modules\Inventory\Http\Requests\SaveItemRequest;
+
+class ItemController extends BaseController
+{
+    protected $itemService;
+
+    public function __construct(ItemService $service)
+    {
+        $this->itemService = $service;
+    }
+
+    public function store(SaveItemRequest $request) 
+    {
+        // 1. التحقق من الصلاحيات (اختياري هنا، يفضل في الـ Policy)
+        $this->authorize('create', Item::class);
+        
+        // 2. معالجة البيانات عبر الخدمة
+        $item = $this->itemService->createItem($request->validated());
+
+        // 3. العودة بالرد
+        return redirect()->back()->with('success', 'تمت الإضافة');
+    }
+}</pre>
+
+        <h3>استخدام Form Requests</h3>
+        <p>دائماً استقبل البيانات عبر <code>FormRequest</code> خاص موجود في <code>Http/Requests</code> لضمان أمان
+            المدخلات قبل وصولها للمتحكم.</p>
+
+        <div class="alert">
+            <strong>ملاحظة:</strong> ورث دائماً من <code>BaseController</code> الموجود في موديول Core للحصول على ميزات
+            توحيد الاستجابة.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

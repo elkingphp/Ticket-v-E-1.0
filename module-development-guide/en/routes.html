@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Routes | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Managing Routes</h1>
+        <p>Linking URLs to Controllers within a Module</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../routes.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Where to find route files?</h2>
+        <p>Routes are located in the <code>Routes</code> folder inside each module, divided into:</p>
+        <ul>
+            <li><code>web.php</code>: For UI routes (includes Sessions and CSRF).</li>
+            <li><code>api.php</code>: For API routes (includes JSON and Stateless auth).</li>
+        </ul>
+
+        <h3>Example of adding a Web Route:</h3>
+        <pre>use Illuminate\Support\Facades\Route;
+use Modules\Inventory\Http\Controllers\ItemController;
+
+Route::prefix('inventory')->group(function() {
+    Route::get('/', [ItemController::class, 'index'])->name('inventory.index');
+    Route::post('/store', [ItemController::class, 'store'])->name('inventory.store');
+});</pre>
+
+        <h3>Applying Permission Middleware:</h3>
+        <p>To protect a route and enable it only for users with specific permissions:</p>
+        <pre>Route::middleware(['auth', 'can:inventory.view'])->group(function() {
+    Route::get('/inventory', [ItemController::class, 'index']);
+});</pre>
+
+        <h3>Protecting the Entire Module</h3>
+        <p>Our system provides a special middleware to check if the module is enabled before access:</p>
+        <pre>Route::middleware(['module_status:Inventory'])->group(function() {
+    // All routes here will stop if the Inventory module is disabled
+});</pre>
+
+        <div class="alert">
+            <strong>Warning:</strong> Always use Named Routes to facilitate linking in views, e.g.,
+            <code>inventory.list</code>.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

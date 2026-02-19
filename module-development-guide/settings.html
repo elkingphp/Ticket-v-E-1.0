@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة الإعدادات | Digilians Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>نظام إعدادات النظام</h1>
+        <p>إدارة متغيرات الموديول بمرونة وأداء عالٍ</p>
+    </header>
+
+    <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="create-module.html">إنشاء موديول</a>
+        <a href="structure.html">الهيكل البرمجي</a>
+        <a href="routes.html">المسارات (Routes)</a>
+        <a href="controllers.html">المتحكمات (Controllers)</a>
+        <a href="permissions.html">الصلاحيات</a>
+        <a href="settings.html">الإعدادات</a>
+        <a href="crud-example.html">مثال CRUD</a>
+        <a href="velzon-ui.html">واجهة Velzon</a>
+        <a href="en/settings.html">English</a>
+    </nav>
+
+    <div class="container">
+        <h2>استخدام SettingsService</h2>
+        <p>يوفر موديول Core خدمة مركزية لإدارة الإعدادات المخزنة في قاعدة البيانات والمحمية في Redis.</p>
+
+        <h3>1. حفظ إعداد جديد</h3>
+        <p>يمكنك عمل ذلك في Seeder أو Controller:</p>
+        <pre>use Modules\Core\Application\Services\SettingsService;
+
+public function __construct(SettingsService $settings) {
+    $this->settings = $settings;
+}
+
+// حفظ إعداد مشفر
+$this->settings->set('api_key', '12345', 'Inventory', 'string', true);</pre>
+
+        <h3>2. جلب إعداد</h3>
+        <pre>$val = $this->settings->get('api_key', 'default_value');</pre>
+
+        <h3>المميزات التقنية:</h3>
+        <ul>
+            <li><strong>Singleton:</strong> يتم تحميل الإعدادات مرة واحدة فقط لكل Request.</li>
+            <li><strong>Flash Cache:</strong> يتم تحديث الذاكرة السريعة (Redis) فور تغير أي قيمة.</li>
+            <li><strong>Auto-Encryption:</strong> القيم الحساسة تشفر بـ AES-256 آلياً إذا حددت
+                <code>is_encrypted = true</code>.
+            </li>
+        </ul>
+
+        <h3>أنواع البيانات المدعومة:</h3>
+        <p><code>string, integer, boolean, array, json</code></p>
+
+        <div class="alert">
+            <strong>نصيحة:</strong> استخدم الإعدادات للقيم التي تتغير بواسطة الأدمن (مثل تفعيل ميزة معينة أو ربط API
+            خارجي)، ولا تستخدمها لحفظ بيانات متغيرة باستمرار.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

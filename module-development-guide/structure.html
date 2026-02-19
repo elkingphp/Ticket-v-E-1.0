@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الهيكل البرمجي للموديول | Digilians Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>الهيكل البرمجي للموديول</h1>
+        <p>فهم الطبقات البرمجية (Layered Architecture)</p>
+    </header>
+
+    <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="create-module.html">إنشاء موديول</a>
+        <a href="structure.html">الهيكل البرمجي</a>
+        <a href="routes.html">المسارات (Routes)</a>
+        <a href="controllers.html">المتحكمات (Controllers)</a>
+        <a href="permissions.html">الصلاحيات</a>
+        <a href="settings.html">الإعدادات</a>
+        <a href="crud-example.html">مثال CRUD</a>
+        <a href="velzon-ui.html">واجهة Velzon</a>
+        <a href="en/structure.html">English</a>
+    </nav>
+
+    <div class="container">
+        <h2>لماذا نستخدم الطبقات؟</h2>
+        <p>الهدف هو فصل "ماذا يفعل الكود" عن "كيف يصل للبيانات" وعن "كيف يستجيب للمتصفح".</p>
+
+        <h3>1. طبقة الـ Domain (القلب)</h3>
+        <p>تحتوي على منطق العمل الأساسي والقواعد التي لا تتغير:</p>
+        <ul>
+            <li><strong>Models:</strong> تعريف البيانات والعلاقات.</li>
+            <li><strong>Interfaces:</strong> العقود التي تلتزم بها المستودعات (Repositories).</li>
+            <li><strong>Events:</strong> الأحداث التي يطلقها الموديول.</li>
+        </ul>
+
+        <h3>2. طبقة الـ Application (المحرك)</h3>
+        <p>تتحكم في تدفق العمليات:</p>
+        <ul>
+            <li><strong>Services:</strong> تجميع العمليات المعقدة في مكان واحد.</li>
+            <li><strong>Policies:</strong> تحديد من يمكنه فعل ماذا.</li>
+            <li><strong>Jobs:</strong> المهام التي تعمل في الخلفية.</li>
+        </ul>
+
+        <h3>3. طبقة الـ Infrastructure (المستودع)</h3>
+        <p>تتعامل مع التقنية الخارجية (قاعدة البيانات، الملفات):</p>
+        <ul>
+            <li><strong>Repositories:</strong> تنفيذ استعلامات SQL عبر الواجهات.</li>
+            <li><strong>Database:</strong> الهجرات والبيانات الأولية.</li>
+        </ul>
+
+        <h3>4. طبقة الـ Http (الواجهة)</h3>
+        <p>نقطة الاتصال مع المستخدم:</p>
+        <ul>
+            <li><strong>Controllers:</strong> تستقبل الطلبات وتوجهها للخدمات.</li>
+            <li><strong>Requests:</strong> التحقق من صحة البيانات المدخلة.</li>
+        </ul>
+
+        <div class="alert">
+            <strong>قاعدة ذهبية:</strong> المتحكم (Controller) يجب أن يكون نحيفاً (Thin)، والخدمة (Service) هي من تقوم
+            بالعمل الثقيل.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

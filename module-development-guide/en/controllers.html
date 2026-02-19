@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Controllers | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Controllers</h1>
+        <p>The entry point for processing requests</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../controllers.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Where to place Controllers?</h2>
+        <p>Controllers should be placed in the <code>Http/Controllers</code> folder inside the module.</p>
+
+        <h3>Golden Rule</h3>
+        <p>A Controller should not contain complex logic or direct DB queries. It should call the "Service".</p>
+
+        <pre>namespace Modules\Inventory\Http\Controllers;
+
+use Modules\Core\Http\Controllers\BaseController;
+use Modules\Inventory\Application\Services\ItemService;
+use Modules\Inventory\Http\Requests\SaveItemRequest;
+
+class ItemController extends BaseController
+{
+    protected $itemService;
+
+    public function __construct(ItemService $service)
+    {
+        $this->itemService = $service;
+    }
+
+    public function store(SaveItemRequest $request) 
+    {
+        // 1. Check Permissions (optional here, preferred in Policy)
+        $this->authorize('create', Item::class);
+        
+        // 2. Process Data via Service
+        $item = $this->itemService->createItem($request->validated());
+
+        // 3. Return Response
+        return redirect()->back()->with('success', 'Item Added Successfully');
+    }
+}</pre>
+
+        <h3>Using Form Requests</h3>
+        <p>Always accept data via a dedicated <code>FormRequest</code> located in <code>Http/Requests</code> to ensure
+            input security before reaching the controller.</p>
+
+        <div class="alert">
+            <strong>Note:</strong> Always inherit from <code>BaseController</code> found in the Core module to utilize
+            unified response features.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء موديول جديد | Digilians Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>كيفية إنشاء موديول جديد</h1>
+        <p>الخطوات الأساسية لبناء وحدة برمجية مستقلة</p>
+    </header>
+
+    <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="create-module.html">إنشاء موديول</a>
+        <a href="structure.html">الهيكل البرمجي</a>
+        <a href="routes.html">المسارات (Routes)</a>
+        <a href="controllers.html">المتحكمات (Controllers)</a>
+        <a href="permissions.html">الصلاحيات</a>
+        <a href="settings.html">الإعدادات</a>
+        <a href="crud-example.html">مثال CRUD</a>
+        <a href="velzon-ui.html">واجهة Velzon</a>
+        <a href="en/create-module.html">English</a>
+    </nav>
+
+    <div class="container">
+        <h2>الخطوة الأولى: استخدام أمر Artisan</h2>
+        <p>نستخدم حزمة <code>nwidart/laravel-modules</code> لإنشاء الهيكل الأساسي. قم بتشغيل الأمر التالي في الطرفية
+            (Terminal):</p>
+        <pre>php artisan module:make Inventory</pre>
+        <p>هذا الأمر سينشئ مجلد <code>Inventory</code> داخل مجلد <code>Modules</code> الرئيسي.</p>
+
+        <ul class="steps">
+            <li data-step="1">
+                <h3>إعداد autoloading</h3>
+                <p>تأكد من تحديث ملف <code>composer.json</code> داخل الموديول الجديد ليعمل مع نظام الطبقات لدينا. يجب أن
+                    يكون قسم الـ psr-4 كالتالي:</p>
+                <pre>"autoload": {
+    "psr-4": {
+        "Modules\\Inventory\\": "./"
+    }
+}</pre>
+            </li>
+            <li data-step="2">
+                <h3>تحديث المجلدات</h3>
+                <p>قم بإنشاء مجلدات الطبقات الأساسية كما هو متفق عليه:</p>
+                <ul>
+                    <li><code>Domain/Models</code>, <code>Domain/Interfaces</code></li>
+                    <li><code>Application/Services</code>, <code>Application/Policies</code></li>
+                    <li><code>Infrastructure/Repositories</code>, <code>Infrastructure/Database/Migrations</code></li>
+                </ul>
+            </li>
+            <li data-step="3">
+                <h3>تشغيل الأمر</h3>
+                <p>بعد تغيير مسارات الـ autoload، قم بتشغيل الأمر:</p>
+                <pre>composer dump-autoload</pre>
+            </li>
+        </ul>
+
+        <div class="alert">
+            <strong>نصيحة:</strong> دائماً ابدأ بإنشاء الهجرات (Migrations) في مجلد
+            <code>Infrastructure/Database/Migrations</code> لتعريف قواعد البيانات الخاصة بموديولك.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>

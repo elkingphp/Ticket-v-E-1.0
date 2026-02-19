@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Using Velzon UI | Digilians Guide</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Developing UI with Velzon</h1>
+        <p>Using the Unified Layout with RTL Support</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="create-module.html">Create Module</a>
+        <a href="structure.html">Structure</a>
+        <a href="routes.html">Routes</a>
+        <a href="controllers.html">Controllers</a>
+        <a href="permissions.html">Permissions</a>
+        <a href="settings.html">Settings</a>
+        <a href="crud-example.html">CRUD Example</a>
+        <a href="velzon-ui.html">Velzon UI</a>
+        <a href="../velzon-ui.html">العربية</a>
+    </nav>
+
+    <div class="container">
+        <h2>Extending the Master Layout</h2>
+        <p>The Core module provides a ready-to-use Master Layout with RTL support:</p>
+        <pre>@extends('core::layouts.master')
+
+@section('title', 'Product List')
+
+@section('content')
+    &lt;div class="card"&gt;
+        &lt;div class="card-body"&gt;
+            Page content here...
+        &lt;/div&gt;
+    &lt;/div&gt;
+@endsection</pre>
+
+        <h3>Loading Assets</h3>
+        <p>Inside your module, use the <code>@vite</code> directive to load your specific SASS and JS files without
+            interfering with the system:</p>
+        <pre>@push('styles')
+    @vite(['Modules/Inventory/Resources/assets/sass/app.scss'])
+@endpush</pre>
+
+        <h3>Ready-made Velzon Components</h3>
+        <ul>
+            <li><strong>Cards:</strong> Use <code>card</code> and <code>card-body</code> classes.</li>
+            <li><strong>Buttons:</strong> Use <code>btn btn-primary</code>.</li>
+            <li><strong>Forms:</strong> Use <code>form-label</code> and <code>form-control</code>.</li>
+        </ul>
+
+        <div class="alert">
+            <strong>RTL Support:</strong> You don't need to write direction-specific CSS; the master layout
+            automatically switches direction based on the user's selected interface language.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Digilians Team.
+    </div>
+</body>
+
+</html>
