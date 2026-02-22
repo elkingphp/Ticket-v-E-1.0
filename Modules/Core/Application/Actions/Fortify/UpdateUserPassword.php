@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace Modules\Core\Application\Actions\Fortify;
 
-use App\Models\User;
+use Modules\Users\Domain\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;

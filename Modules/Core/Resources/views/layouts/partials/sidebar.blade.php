@@ -59,6 +59,126 @@
                     </a>
                 </li>
                 
+                <!-- Educational Module -->
+                @canany(['education.attendance.view', 'education.lectures.view', 'education.evaluations.manage', 'education.access'])
+                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-educational">{{ __('educational::messages.educational') }}</span></li>
+                <li class="nav-item">
+                    @php $educationalActive = request()->routeIs('educational.*'); @endphp
+                    <a class="nav-link menu-link {{ $educationalActive ? 'active' : '' }}" href="#sidebarEducational" data-bs-toggle="collapse" 
+                        role="button" aria-expanded="{{ $educationalActive ? 'true' : 'false' }}" aria-controls="sidebarEducational">
+                        <i class="ri-book-3-line"></i> <span data-key="t-education">{{ __('educational::messages.educational') }}</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ $educationalActive ? 'show' : '' }}" id="sidebarEducational">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('educational.dashboard') }}" class="nav-link {{ request()->routeIs('educational.dashboard') ? 'active' : '' }}" data-key="t-dashboard">{{ __('educational::messages.dashboard') }}</a>
+                            </li>
+                            @can('education.attendance.view')
+                            <li class="nav-item">
+                                <a href="{{ route('educational.attendance.dashboard') }}" class="nav-link {{ request()->routeIs('educational.attendance.dashboard') ? 'active' : '' }}" data-key="t-attendance">{{ __('educational::messages.attendance') }}</a>
+                            </li>
+                            @endcan
+                            @can('education.attendance.override')
+                            <li class="nav-item">
+                                <a href="{{ route('educational.attendance.override.list') }}" class="nav-link {{ request()->routeIs('educational.attendance.override.list') ? 'active' : '' }}" data-key="t-attendance-override">{{ __('educational::messages.overrides') }}</a>
+                            </li>
+                            @endcan
+                            @can('education.lectures.view')
+                            <li class="nav-item">
+                                <a href="{{ route('educational.lectures.index') }}" class="nav-link {{ request()->routeIs('educational.lectures.index') ? 'active' : '' }}" data-key="t-lectures">{{ __('educational::messages.lectures') }}</a>
+                            </li>
+                            @endcan
+                            @can('education.lectures.create')
+                            <li class="nav-item">
+                                <a href="{{ route('educational.lectures.create') }}" class="nav-link {{ request()->routeIs('educational.lectures.create') ? 'active' : '' }}" data-key="t-generate-lectures">{{ __('educational::messages.generate_lectures') }}</a>
+                            </li>
+                            @endcan
+                            @can('education.evaluations.manage')
+                            <li class="nav-item">
+                                <a href="{{ route('educational.evaluations.forms.index') }}" class="nav-link {{ request()->routeIs('educational.evaluations.forms.*') ? 'active' : '' }}" data-key="t-evaluations">{{ __('educational::messages.evaluations') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.evaluations.settings.index') }}" class="nav-link {{ request()->routeIs('educational.evaluations.settings.*') ? 'active' : '' }}" data-key="t-evaluation-settings">{{ __('educational::messages.evaluation_settings') }}</a>
+                            </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Management (Educational) -->
+                @can('education.access')
+                <li class="nav-item">
+                    @php $mgmtActive = request()->routeIs('educational.companies.*') || request()->routeIs('educational.instructors.*') || request()->routeIs('educational.students.*') || request()->routeIs('educational.programs.*') || request()->routeIs('educational.groups.*') || request()->routeIs('educational.schedules.*') || request()->routeIs('educational.tracks.*') || request()->routeIs('educational.job_profiles.*') || request()->routeIs('educational.governorates.*') || request()->routeIs('educational.session_types.*'); @endphp
+                    <a class="nav-link menu-link {{ $mgmtActive ? 'active' : '' }}" href="#sidebarEducationAdmin" data-bs-toggle="collapse" 
+                        role="button" aria-expanded="{{ $mgmtActive ? 'true' : 'false' }}" aria-controls="sidebarEducationAdmin">
+                        <i class="ri-shield-user-line"></i> <span data-key="t-education-admin">{{ __('educational::messages.management') }}</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ $mgmtActive ? 'show' : '' }}" id="sidebarEducationAdmin">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('educational.settings.index') }}" class="nav-link {{ request()->routeIs('educational.settings.*') ? 'active' : '' }}"><i class="ri-settings-4-line me-1"></i> الإعدادات العامة للمركز</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.companies.index') }}" class="nav-link {{ request()->routeIs('educational.companies.*') ? 'active' : '' }}">{{ __('educational::messages.training_companies') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.instructors.index') }}" class="nav-link {{ request()->routeIs('educational.instructors.*') ? 'active' : '' }}">{{ __('educational::messages.instructors') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.students.index') }}" class="nav-link {{ request()->routeIs('educational.students.*') ? 'active' : '' }}">{{ __('educational::messages.students') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.tracks.index') }}" class="nav-link {{ request()->routeIs('educational.tracks.*') ? 'active' : '' }}">{{ __('educational::messages.tracks') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.job_profiles.index') }}" class="nav-link {{ request()->routeIs('educational.job_profiles.*') ? 'active' : '' }}">{{ __('educational::messages.job_profiles') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.programs.index') }}" class="nav-link {{ request()->routeIs('educational.programs.*') ? 'active' : '' }}">{{ __('educational::messages.programs') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.governorates.index') }}" class="nav-link {{ request()->routeIs('educational.governorates.*') ? 'active' : '' }}">{{ __('educational::messages.governorates') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.session_types.index') }}" class="nav-link {{ request()->routeIs('educational.session_types.*') ? 'active' : '' }}">{{ __('educational::messages.session_types') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.groups.index') }}" class="nav-link {{ request()->routeIs('educational.groups.*') ? 'active' : '' }}">{{ __('educational::messages.groups') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.schedules.index') }}" class="nav-link {{ request()->routeIs('educational.schedules.*') ? 'active' : '' }}">{{ __('educational::messages.schedule_templates') }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Academic Resources -->
+                <li class="nav-item">
+                    @php $resActive = request()->routeIs('educational.campuses.*') || request()->routeIs('educational.buildings.*') || request()->routeIs('educational.floors.*') || request()->routeIs('educational.rooms.*'); @endphp
+                    <a class="nav-link menu-link {{ $resActive ? 'active' : '' }}" href="#sidebarEducationResources" data-bs-toggle="collapse" 
+                        role="button" aria-expanded="{{ $resActive ? 'true' : 'false' }}" aria-controls="sidebarEducationResources">
+                        <i class="ri-building-line"></i> <span data-key="t-education-resources">{{ __('educational::messages.academic_resources') }}</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ $resActive ? 'show' : '' }}" id="sidebarEducationResources">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('educational.campuses.index') }}" class="nav-link {{ request()->routeIs('educational.campuses.*') ? 'active' : '' }}">{{ __('educational::messages.campuses') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.buildings.index') }}" class="nav-link {{ request()->routeIs('educational.buildings.*') ? 'active' : '' }}">{{ __('educational::messages.buildings') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.floors.index') }}" class="nav-link {{ request()->routeIs('educational.floors.*') ? 'active' : '' }}">{{ __('educational::messages.floors') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('educational.rooms.index') }}" class="nav-link {{ request()->routeIs('educational.rooms.*') ? 'active' : '' }}">{{ __('educational::messages.rooms') }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                @endcan
+                @endcanany
+
                 <!-- Tickets Module -->
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">{{ __('tickets::messages.tickets') }}</span></li>
 

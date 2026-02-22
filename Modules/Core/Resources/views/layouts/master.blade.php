@@ -44,6 +44,13 @@
         <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
     @endif
 
+    <!-- Sweet Alert css-->
+    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Flatpickr css-->
+    <link href="{{ asset('assets/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Choices css-->
+    <link href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" rel="stylesheet" type="text/css" />
+
     @vite(['resources/js/app.js', 'Modules/Core/Resources/assets/sass/app.scss', 'Modules/Core/Resources/assets/js/app.js'])
 
     <script>
@@ -106,6 +113,13 @@
     <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
     <script src="{{ asset('assets/js/plugins.js') }}"></script>
+
+    <!-- Sweet Alerts js -->
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <!-- Flatpickr js -->
+    <script src="{{ asset('assets/libs/flatpickr/flatpickr.min.js') }}"></script>
+    <!-- Choices js -->
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
 
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>

@@ -41,7 +41,9 @@ class RoleController extends Controller implements HasMiddleware
         ]);
 
         $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
-        $role->syncPermissions($request->permissions);
+
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+        $role->syncPermissions($permissions);
 
         return redirect()->route('roles.index')->with('success', __('Role created successfully'));
     }
@@ -61,7 +63,9 @@ class RoleController extends Controller implements HasMiddleware
         ]);
 
         $role->update(['name' => $request->name]);
-        $role->syncPermissions($request->permissions);
+
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+        $role->syncPermissions($permissions);
 
         return redirect()->route('roles.index')->with('success', __('Role updated successfully'));
     }

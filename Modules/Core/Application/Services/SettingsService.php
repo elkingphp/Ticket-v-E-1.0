@@ -26,11 +26,11 @@ class SettingsService extends BaseService
             return $this->settings;
         }
 
-        $this->settings = Cache::store('redis')->get($this->cacheKey);
+        $this->settings = Cache::get($this->cacheKey);
 
         if ($this->settings === null) {
             $this->settings = $this->repository->getAllSettings()->pluck('value', 'name');
-            Cache::store('redis')->put($this->cacheKey, $this->settings, now()->addDays(1));
+            Cache::put($this->cacheKey, $this->settings, now()->addDays(1));
         }
 
         return $this->settings;
@@ -50,7 +50,7 @@ class SettingsService extends BaseService
      */
     public function clearCache(): void
     {
-        Cache::store('redis')->forget($this->cacheKey);
+        Cache::forget($this->cacheKey);
         $this->settings = null;
     }
 
@@ -60,12 +60,12 @@ class SettingsService extends BaseService
     public function set(string $name, mixed $value, string $module = 'Core', bool $encrypted = false): void
     {
         $this->repository->updateOrCreate(
-        ['name' => $name],
-        [
-            'value' => $value,
-            'module' => $module,
-            'is_encrypted' => $encrypted
-        ]
+            ['name' => $name],
+            [
+                'value' => $value,
+                'module' => $module,
+                'is_encrypted' => $encrypted
+            ]
         );
 
         $this->clearCache();

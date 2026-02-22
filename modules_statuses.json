@@ -2,5 +2,6 @@
     "Core": true,
     "Users": true,
     "Settings": true,
-    "Tickets": true
+    "Tickets": true,
+    "Educational": true
 }

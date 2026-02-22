@@ -15,5 +15,6 @@ class SystemSetting extends BaseModel
 
     protected $casts = [
         'is_encrypted' => 'boolean',
+        'value' => 'json',
     ];
 }
