@@ -1,0 +1,2836 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8"><title>Public System Schema</title>
+<style>
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; text-align: right; }
+th, td { border: 1px solid #718096; padding: 10px; text-align: right; }
+th { background-color: #e2e8f0; font-weight: bold; color: #2d3748; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; padding: 20px; direction: rtl; text-align: right; }
+h1, h2, h3 { color: #2b6cb0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+li { margin-bottom: 5px; }
+pre { background: #edf2f7; padding: 15px; border-radius: 5px; direction: ltr; text-align: left; }
+</style>
+</head>
+<body dir='rtl'>
+<h1>Public System Database Architecture &amp; Technical Documentation</h1>
+<h1>الوثيقة الفنية والبنية المعمارية لقاعدة البيانات التأسيسية للموقع (Public Schema)</h1>
+<p>This document provides a comprehensive, professional, and structured technical documentation for all 29 tables in the <code>public</code> schema.</p>
+<h2>1. Table: <code>approval_requests</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('approval_requests_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>approvable_schema</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>approvable_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>approvable_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'other'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'pending'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>requested_by</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>approved_by</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>rejected_by</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>approval_level</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>1</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>expires_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Table: <code>approval_steps</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('approval_steps_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>approval_request_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (approval_requests)</td>
+<td>No</td>
+<td>Reference to approval_requests / مرجع لجدول approval_requests</td>
+</tr>
+<tr>
+<td><code>step_level</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>required_permission</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'pending'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>acted_by</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>comments</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>acted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. Table: <code>audit_logs</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('audit_logs_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>event</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>auditable_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>auditable_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>old_values</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>new_values</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>log_level</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'info'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td><code>character varying(45)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Table: <code>cache</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>text</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>expiration</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>5. Table: <code>cache_locks</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>owner</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>expiration</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. Table: <code>chaos_reports</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('chaos_reports_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>test_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>started_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>completed_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>7. Table: <code>job_batches</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>total_jobs</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>pending_jobs</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>failed_jobs</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>failed_job_ids</code></td>
+<td><code>text</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>cancelled_at</code></td>
+<td><code>integer</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>finished_at</code></td>
+<td><code>integer</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Table: <code>jobs</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('jobs_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>queue</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td><code>text</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>attempts</code></td>
+<td><code>smallint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>reserved_at</code></td>
+<td><code>integer</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>available_at</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>9. Table: <code>legacy_data_conflicts</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('legacy_data_conflicts_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>source_table</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>conflict_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>duplicate_key</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>payload_json</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>resolution_status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'pending'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>10. Table: <code>migration_id_map</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('migration_id_map_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>table_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>old_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>new_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>11. Table: <code>model_has_permissions</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>permission_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (permissions)</td>
+<td>No</td>
+<td>Reference to permissions / مرجع لجدول permissions</td>
+</tr>
+<tr>
+<td><code>model_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>model_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>12. Table: <code>model_has_roles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (roles)</td>
+<td>No</td>
+<td>Reference to roles / مرجع لجدول roles</td>
+</tr>
+<tr>
+<td><code>model_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>model_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>13. Table: <code>module_dependencies</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('module_dependencies_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>module_id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (modules)</td>
+<td>No</td>
+<td>Reference to modules / مرجع لجدول modules</td>
+</tr>
+<tr>
+<td><code>depends_on_id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (modules)</td>
+<td>No</td>
+<td>Reference to modules / مرجع لجدول modules</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>14. Table: <code>module_request_traces</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('module_request_traces_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>request_id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>module_slug</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>module_state</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>latency_ms</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>http_method</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td><code>text</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status_code</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>15. Table: <code>modules</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'registered'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_core</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>feature_flags</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>health_status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'healthy'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>max_concurrent_requests</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>20</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>state_version</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>'1'::bigint</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>total_requests</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>'0'::bigint</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>total_latency_ms</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>'0'::bigint</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>uptime_seconds</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>'0'::bigint</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>last_status_change_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>degradation_count</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sla_target</code></td>
+<td><code>numeric</code></td>
+<td>NO</td>
+<td><code>99.9</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>16. Table: <code>notification_event_types</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('notification_event_types_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'system'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_mandatory</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>available_channels</code></td>
+<td><code>json</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>17. Table: <code>notification_preferences</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('notification_preferences_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (users)</td>
+<td>No</td>
+<td>Reference to users / مرجع لجدول users</td>
+</tr>
+<tr>
+<td><code>event_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>channels</code></td>
+<td><code>json</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sound_enabled</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>18. Table: <code>notification_retry_logs</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('notification_retry_logs_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>notification_id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>channel</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>resolved</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>19. Table: <code>notification_thresholds</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('notification_thresholds_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>event_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>max_count</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>5</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>time_window</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>3600</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>severity</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'warning'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>20. Table: <code>notifications</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td><code>json</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>read_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>expires_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>21. Table: <code>notifications_archive</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>uuid</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notifiable_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td><code>json</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>read_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>archived_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>22. Table: <code>password_reset_tokens</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>email</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>token</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>23. Table: <code>permissions</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('permissions_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>guard_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>module</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'Core'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>24. Table: <code>role_has_permissions</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>permission_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (permissions)</td>
+<td>No</td>
+<td>Reference to permissions / مرجع لجدول permissions</td>
+</tr>
+<tr>
+<td><code>role_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (roles)</td>
+<td>No</td>
+<td>Reference to roles / مرجع لجدول roles</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>25. Table: <code>roles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('roles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>guard_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>display_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>26. Table: <code>sessions</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td><code>character varying(45)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td><code>text</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>last_activity</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>27. Table: <code>settings</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('settings_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'general'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'string'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_public</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>sort_order</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>28. Table: <code>system_settings</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('system_settings_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>jsonb</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>module</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'Core'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'string'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_encrypted</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>29. Table: <code>users</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('users_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>first_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>last_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>email_verified_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>avatar</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'ar'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>theme_mode</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'dark'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>timezone</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'UTC'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status_reason</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>joined_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>activated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>blocked_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>last_login_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>two_factor_secret</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>two_factor_recovery_codes</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>two_factor_confirmed_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>two_factor_enabled</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>false</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>remember_token</code></td>
+<td><code>character varying(100)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>unread_notifications_count</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>profile_completion_score</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>security_risk_level</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'medium'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>scheduled_for_deletion_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Entity Relationship Diagram (ERD)</h2>
+<pre><code class="language-mermaid">erDiagram
+    approval_requests }o--|| users : &quot;fk_approved_by&quot;
+    approval_requests }o--|| users : &quot;fk_rejected_by&quot;
+    approval_requests }o--|| users : &quot;fk_requested_by&quot;
+    approval_steps }o--|| users : &quot;fk_acted_by&quot;
+    approval_steps }o--|| approval_requests : &quot;fk_approval_request_id&quot;
+    audit_logs }o--|| users : &quot;fk_user_id&quot;
+    audit_logs }o--|| users : &quot;fk_user_id&quot;
+    audit_logs }o--|| users : &quot;fk_user_id&quot;
+    audit_logs }o--|| users : &quot;fk_user_id&quot;
+    model_has_permissions }o--|| permissions : &quot;fk_permission_id&quot;
+    model_has_roles }o--|| roles : &quot;fk_role_id&quot;
+    module_dependencies }o--|| modules : &quot;fk_depends_on_id&quot;
+    module_dependencies }o--|| modules : &quot;fk_module_id&quot;
+    notification_preferences }o--|| users : &quot;fk_user_id&quot;
+    notification_preferences }o--|| users : &quot;fk_user_id&quot;
+    notification_preferences }o--|| users : &quot;fk_user_id&quot;
+    notification_preferences }o--|| users : &quot;fk_user_id&quot;
+    role_has_permissions }o--|| permissions : &quot;fk_permission_id&quot;
+    role_has_permissions }o--|| roles : &quot;fk_role_id&quot;
+</code></pre>
+<h2>6. Security &amp; Scalability (الأمان والتوسع)</h2>
+<ul>
+<li><strong>Security / الأمان:</strong> Strict foreign key constraints prevent orphan records. Users table is the core of authentication. Roles and permissions validate authorization.</li>
+<li><strong>Scalability / التوسع:</strong> Ensure indexes on polymorphic relationships like <code>model_has_permissions</code>.</li>
+</ul>
+
+</body>
+</html>
