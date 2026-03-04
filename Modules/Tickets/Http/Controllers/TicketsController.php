@@ -74,7 +74,20 @@ class TicketsController extends Controller
      */
     public function create()
     {
-        $stages = TicketStage::with('categories.complaints.subComplaints')->get();
+        $user = Auth::user();
+
+        // Load only stages visible to user
+        $stages = TicketStage::visibleTo($user)
+            ->with([
+                'categories' => function ($query) use ($user) {
+                    $query->visibleTo($user)->with([
+                        'complaints' => function ($query) use ($user) {
+                            $query->visibleTo($user)->with('subComplaints');
+                        }
+                    ]);
+                }
+            ])->get();
+
         // Assuming we have a default priority or we let user select? 
         // Usually users select priority, or it's inferred. Let's allowing selection for now.
         $priorities = TicketPriority::all();
@@ -96,14 +109,35 @@ class TicketsController extends Controller
             'priority_id' => 'required|exists:pgsql.tickets.ticket_priorities,id',
             'sub_complaints' => 'nullable|array',
             'sub_complaints.*' => 'exists:pgsql.tickets.ticket_sub_complaints,id',
+            'lecture_id' => 'nullable|exists:' . \Modules\Educational\Domain\Models\Lecture::class . ',id',
             'attachments.*' => 'nullable|file|max:10240', // 10MB max
         ]);
 
+        $user = Auth::user();
+
+        // 1. Authorize: Check if the selected stage is visible to this user
+        $stage = TicketStage::visibleTo($user)->find($request->stage_id);
+        if (!$stage) {
+            return back()->withInput()->withErrors(['stage_id' => 'هذه المرحلة غير مصرح لك باختيارها.']);
+        }
+
+        // 2. Authorize: Check if Category is visible
+        $category = TicketCategory::visibleTo($user)->where('stage_id', $stage->id)->find($request->category_id);
+        if (!$category) {
+            return back()->withInput()->withErrors(['category_id' => 'هذا التصنيف غير مصرح لك باختياره.']);
+        }
+
+        // 3. Authorize: Check Complaint if provided
+        if ($request->filled('complaint_id')) {
+            $complaint = TicketComplaint::visibleTo($user)->where('category_id', $category->id)->find($request->complaint_id);
+            if (!$complaint) {
+                return back()->withInput()->withErrors(['complaint_id' => 'هذه الشكوى غير مصرح لك باختيارها.']);
+            }
+        }
+
         $subject = $request->subject;
         if (empty($subject)) {
-            $stage = TicketStage::find($request->stage_id);
-            $category = TicketCategory::find($request->category_id);
-            $subject = ($stage ? $stage->name : '') . ' > ' . ($category ? $category->name : '');
+            $subject = $stage->name . ' > ' . $category->name;
         }
 
         $data = [
@@ -114,6 +148,7 @@ class TicketsController extends Controller
             'subject' => $subject,
             'details' => $request->description,
             'sub_complaints' => $request->sub_complaints,
+            'lecture_id' => $request->lecture_id,
         ];
 
         if ($request->hasFile('attachments')) {
@@ -131,21 +166,34 @@ class TicketsController extends Controller
      */
     public function show($uuid)
     {
-        $ticket = Ticket::where('uuid', $uuid)
-            ->where('user_id', Auth::id())
-            ->with([
-                'status',
-                'priority',
-                'stage',
-                'category',
-                'complaint',
-                'subComplaints',
-                'threads' => function ($query) {
-                    $query->public()->with(['user', 'attachments']);
-                },
-                'attachments'
-            ])
-            ->firstOrFail();
+        $ticket = Ticket::where('uuid', $uuid)->firstOrFail();
+
+        // If the user is an agent/admin, redirect them to the agent show page
+        if (Auth::user()->hasAnyRole(['admin', 'agent', 'super-admin', 'manager']) || Auth::id() !== $ticket->user_id) {
+            // Check if they are actually staff/agent before redirecting
+            if (Auth::user()->hasAnyRole(['admin', 'agent', 'super-admin', 'manager', 'staff'])) {
+                return redirect()->route('agent.tickets.show', $uuid);
+            }
+        }
+
+        // For students, ensure they only see their own tickets
+        if ($ticket->user_id !== Auth::id()) {
+            abort(404);
+        }
+
+        $ticket->load([
+            'status',
+            'priority',
+            'stage',
+            'category',
+            'complaint',
+            'subComplaints',
+            'threads' => function ($query) {
+                $query->public()->with(['user', 'attachments']);
+            },
+            'attachments',
+            'lecture.sessionType'
+        ]);
 
         $createdActivity = $ticket->activities()
             ->where('activity_type', 'created')

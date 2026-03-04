@@ -80,6 +80,7 @@ class User extends Authenticatable
     protected $appends = [
         'full_name',
         'security_status',
+        'role_names_list',
     ];
 
     /**
@@ -105,13 +106,27 @@ class User extends Authenticatable
      */
     public function getSecurityStatusAttribute(): array
     {
+        $settings = app(\Modules\Core\Application\Services\SettingsService::class);
         $score = $this->profile_completion_score;
 
-        if ($score >= 80)
+        $thresholdLow = (int) $settings->get('profile_risk_threshold_low', 80);
+        $thresholdMed = (int) $settings->get('profile_risk_threshold_medium', 50);
+
+        if ($score >= $thresholdLow)
             return ['label' => __('core::profile.low_risk'), 'color' => 'success', 'class' => 'bg-success-subtle text-success'];
-        if ($score >= 50)
+        if ($score >= $thresholdMed)
             return ['label' => __('core::profile.medium_risk'), 'color' => 'warning', 'class' => 'bg-warning-subtle text-warning'];
         return ['label' => __('core::profile.high_risk'), 'color' => 'danger', 'class' => 'bg-danger-subtle text-danger'];
+    }
+
+    /**
+     * Get the user's roles display names as a comma-separated list.
+     */
+    public function getRoleNamesListAttribute(): string
+    {
+        return $this->roles->map(function ($role) {
+            return $role->display_name ?? $role->name;
+        })->implode(', ');
     }
 
     /**
@@ -119,17 +134,19 @@ class User extends Authenticatable
      */
     public function updateSecurityScore(): void
     {
+        $settings = app(\Modules\Core\Application\Services\SettingsService::class);
+
         $weights = [
-            'first_name' => 5,
-            'last_name' => 5,
-            'email_verified_at' => 20,
-            'two_factor_confirmed_at' => 20,
-            'phone' => 10,
-            'avatar' => 5,
-            'language' => 5,
-            'timezone' => 5,
+            'first_name' => (int) $settings->get('profile_weight_first_name', 5),
+            'last_name' => (int) $settings->get('profile_weight_last_name', 5),
+            'email_verified_at' => (int) $settings->get('profile_weight_email_verified', 20),
+            'two_factor_confirmed_at' => (int) $settings->get('profile_weight_2fa_active', 20),
+            'phone' => (int) $settings->get('profile_weight_phone', 10),
+            'avatar' => (int) $settings->get('profile_weight_avatar', 5),
+            'language' => (int) $settings->get('profile_weight_language', 5),
+            'timezone' => (int) $settings->get('profile_weight_timezone', 5),
             'last_login_at' => 5,
-            'sessions_count' => 20, // Has multiple sessions
+            'sessions_count' => (int) $settings->get('profile_weight_sessions_count', 25),
         ];
 
         $score = 0;
@@ -152,7 +169,6 @@ class User extends Authenticatable
         if ($this->last_login_at)
             $score += $weights['last_login_at'];
 
-        // Count active sessions
         $sessionsCount = \Illuminate\Support\Facades\DB::table('sessions')
             ->where('user_id', $this->id)
             ->count();
@@ -161,8 +177,10 @@ class User extends Authenticatable
 
         $this->profile_completion_score = min(100, $score);
 
-        // Update risk level
-        $this->security_risk_level = $score >= 80 ? 'low' : ($score >= 50 ? 'medium' : 'high');
+        $thresholdLow = (int) $settings->get('profile_risk_threshold_low', 80);
+        $thresholdMed = (int) $settings->get('profile_risk_threshold_medium', 50);
+
+        $this->security_risk_level = $score >= $thresholdLow ? 'low' : ($score >= $thresholdMed ? 'medium' : 'high');
 
         $this->saveQuietly();
     }

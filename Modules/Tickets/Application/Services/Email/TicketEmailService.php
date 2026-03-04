@@ -64,6 +64,7 @@ class TicketEmailService
     {
         $replacements = [
             'ticket_id' => $ticket->uuid,
+            'ticket_number' => $ticket->ticket_number,
             'id' => substr($ticket->uuid, 0, 8),
             'subject' => $ticket->subject,
             'status' => $ticket->status?->name,
@@ -74,6 +75,8 @@ class TicketEmailService
             'link' => route('tickets.show', $ticket->uuid),
             'url' => route('tickets.show', $ticket->uuid),
             'agent_link' => route('agent.tickets.show', $ticket->uuid),
+            'logo' => get_setting('logo_light') ? asset(get_setting('logo_light')) : asset('assets/images/logo-dark.png'),
+            'app_name' => get_setting('site_name', 'Digilians'),
         ];
 
         if ($thread) {
@@ -82,7 +85,7 @@ class TicketEmailService
         }
 
         foreach ($replacements as $key => $value) {
-            $content = str_replace(["{{ $key }}", "{{$key}}", "{ $key }", "{$key}"], $value ?? '', $content);
+            $content = str_replace(["{{ $key }}", "{{$key}}", "{ $key }", "{$key}"], (string) ($value ?? ''), $content);
         }
 
         return $content;

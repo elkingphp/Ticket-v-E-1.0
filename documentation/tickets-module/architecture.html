@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Overview | Tickets Module Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #1a1a1a;
+            --sidebar-bg: #f8f9fa;
+            --accent-color: #2563eb;
+            --border-color: #e5e7eb;
+            --code-bg: #f1f5f9;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --sidebar-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --border-color: #334155;
+            --code-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .sidebar h2 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 1rem;
+            padding: 0 0.75rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar li a:hover,
+        .sidebar li a.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .content {
+            margin-left: 280px;
+            padding: 3rem 4rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.875rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sidebar">
+        <h2>Tickets Module</h2>
+        <ul>
+            <li><a href="index.html">Technical Overview</a></li>
+            <li><a href="architecture.html" class="active">Architectural Overview</a></li>
+            <li><a href="domain-design.html">Domain Design</a></li>
+            <li><a href="database-schema.html">Database Schema</a></li>
+            <li><a href="application-layer.html">Application Layer</a></li>
+            <li><a href="workflow.html">Workflow Lifecycle</a></li>
+            <li><a href="security.html">Security Considerations</a></li>
+            <li><a href="performance.html">Performance Strategy</a></li>
+            <li><a href="extensibility.html">Extensibility Strategy</a></li>
+            <li><a href="testing.html">Testing Strategy</a></li>
+        </ul>
+    </nav>
+    <main class="content">
+        <header>
+            <div class="breadcrumb">Technical Documentation / Architecture</div>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Mode</button>
+        </header>
+        <h1>Architectural Overview</h1>
+
+        <h2>Why the Module was Created</h2>
+        <p>In an enterprise context, communication between departments and users often becomes fragmented. The Tickets
+            module centralizes these interactions into structured entities, allowing for systematic tracking, auditing,
+            and analysis.</p>
+
+        <h2>Problem Solution</h2>
+        <ul>
+            <li><strong>Fragmentation:</strong> Moves emails and chat-based support into a single source of truth.</li>
+            <li><strong>Traceability:</strong> Every action on a ticket is recorded in the <code>Audit Logs</code>.</li>
+            <li><strong>Structural Analysis:</strong> Using Categories and Complaint types allows the institution to
+                identify systemic issues.</li>
+        </ul>
+
+        <h2>Domain Position</h2>
+        <p>The module resides in the <strong>Domain Layer</strong> of the application. It acts as a consumer of
+            <code>User</code> identities and a generator of <code>Activity</code> snapshots. It is architected to be
+            "loosely coupled" yet "highly cohesive" with the core identity system.</p>
+
+        <div class="footer">Tickets Domain Module - Technical Documentation | &copy; 2026</div>
+    </main>
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            localStorage.setItem('doc-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('doc-theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+    </script>
+</body>
+
+</html>

@@ -8,13 +8,13 @@ return new class extends Migration {
     public function up(): void
     {
         $permissions = [
-            'tickets.access',
+            'tickets.view',
             'tickets.create',
-            'tickets.agent_desk',
+            'tickets.manage',
             'tickets.lookups',
             'tickets.settings',
             'tickets.routing',
-            'tickets.manage_templates',
+            'tickets.templates.manage',
         ];
 
         foreach ($permissions as $per) {
@@ -35,8 +35,8 @@ return new class extends Migration {
             /** @var Role $agentRole */
             $agentRole = Role::findByName('agent', 'web');
             $agentRole->givePermissionTo([
-                'tickets.access',
-                'tickets.agent_desk',
+                'tickets.view',
+                'tickets.manage',
             ]);
         } catch (\Exception $e) {
             // Role might not exist

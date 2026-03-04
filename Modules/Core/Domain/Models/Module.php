@@ -13,7 +13,7 @@ class Module extends Model
 
     protected static function newFactory()
     {
-        return \Database\Factories\ModuleFactory::new ();
+        return \Database\Factories\ModuleFactory::new();
     }
     public $incrementing = false;
     protected $keyType = 'string';
@@ -58,9 +58,7 @@ class Module extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string)Str::uuid();
-            }
+            $model->{$model->getKeyName()} = (string) Str::uuid();
         });
     }
 
@@ -119,7 +117,8 @@ class Module extends Model
     public function getUptimePercentage(): float
     {
         $totalSeconds = now()->diffInSeconds($this->created_at);
-        if ($totalSeconds <= 0) return 100.0;
+        if ($totalSeconds <= 0)
+            return 100.0;
 
         $currentUptime = $this->uptime_seconds;
         if (in_array($this->status, ['active', 'degraded'])) {
@@ -136,12 +135,12 @@ class Module extends Model
 
     public function dependencies(): BelongsToMany
     {
-        return $this->belongsToMany(Module::class , 'module_dependencies', 'module_id', 'depends_on_id');
+        return $this->belongsToMany(Module::class, 'module_dependencies', 'module_id', 'depends_on_id');
     }
 
     public function dependents(): BelongsToMany
     {
-        return $this->belongsToMany(Module::class , 'module_dependencies', 'depends_on_id', 'module_id');
+        return $this->belongsToMany(Module::class, 'module_dependencies', 'depends_on_id', 'module_id');
     }
 
     public function isActive(): bool

@@ -48,11 +48,21 @@ class ERMOController extends Controller
     public function metrics(): JsonResponse
     {
         $modules = Module::all();
-        $metrics = $modules->map(function ($m) {
+        $redisError = false;
+
+        $metrics = $modules->map(function ($m) use (&$redisError) {
             $slug = $m->slug;
             $prefix = config('cache.prefix', 'laravel_cache');
-            $activeRequests = (int) Redis::get("{$prefix}:ermo:active_requests:{$slug}") ?? 0;
-            
+
+            $activeRequests = 0;
+            try {
+                // Try to get active requests from Redis if available
+                $activeRequests = (int) Redis::get("{$prefix}:ermo:active_requests:{$slug}");
+            } catch (\Exception $e) {
+                $redisError = true;
+                Log::warning("ERMO Metrics: Redis connection failed while fetching active requests for {$slug}. Fallback to 0.");
+            }
+
             return [
                 'id' => $m->id,
                 'slug' => $slug,
@@ -73,9 +83,13 @@ class ERMOController extends Controller
             ];
         });
 
+        if ($redisError) {
+            Cache::store('file')->put('ermo:redis_degraded', true, now()->addMinutes(5));
+        }
+
         $emergency = [
             'bypass' => config('ermo.emergency_bypass', false),
-            'redis_degraded' => Cache::store('file')->has('ermo:redis_degraded')
+            'redis_degraded' => $redisError || Cache::store('file')->has('ermo:redis_degraded')
         ];
 
         return response()->json([
@@ -84,6 +98,7 @@ class ERMOController extends Controller
             'emergency' => $emergency
         ]);
     }
+
 
     /**
      * GET /admin/ermo/graph
@@ -256,7 +271,7 @@ class ERMOController extends Controller
     {
         try {
             Log::info("Admin triggered manual chaos simulation.");
-            
+
             // Execute command
             Artisan::call('ermo:chaos-simulate', ['--type' => 'all']);
             $output = Artisan::output();
@@ -272,9 +287,10 @@ class ERMOController extends Controller
                     'outcome' => $latestReport?->result ?? 'N/A',
                     'report_id' => $latestReport?->id
                 ],
-                auth()->user(),
+                ['triggered_by' => auth()->user()?->email],
                 'critical'
             );
+
 
             broadcast(new \Modules\Core\Infrastructure\Events\ERMOClusterUpdated('chaos_injected', [
                 'outcome' => $latestReport?->result ?? 'N/A',

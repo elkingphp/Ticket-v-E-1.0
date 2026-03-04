@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use Modules\Tickets\Domain\Models\Ticket;
 
-class TicketNotification extends Notification implements ShouldQueue
+abstract class TicketNotification extends Notification
 {
     use Queueable;
 
@@ -34,13 +34,18 @@ class TicketNotification extends Notification implements ShouldQueue
         $eventType = ($this->action === 'created') ? 'ticket_created' : 'ticket_updated';
 
         // Get user preferences
-        $channels = $notifiable->getEnabledChannels($eventType);
+        $userChannels = method_exists($notifiable, 'getEnabledChannels') ? $notifiable->getEnabledChannels($eventType) : ['database', 'broadcast', 'mail'];
 
-        // Always ensure broadcast and database are available for UI reactivity if preferred
-        if (!in_array('database', $channels))
-            $channels[] = 'database';
-        if (!in_array('broadcast', $channels))
-            $channels[] = 'broadcast';
+        // Priority channels: We put database and broadcast FIRST.
+        // This ensures the user instantly receives the bell and real-time toast notification,
+        // even if the 'mail' channel subsequently crashes due to SMTP errors (like 554 Access Denied).
+        $channels = ['database', 'broadcast'];
+
+        foreach ($userChannels as $channel) {
+            if (!in_array($channel, $channels)) {
+                $channels[] = $channel;
+            }
+        }
 
         return $channels;
     }
@@ -58,7 +63,8 @@ class TicketNotification extends Notification implements ShouldQueue
             'category' => $this->resolveCategory(),
             'module' => 'Tickets',
             'color' => $this->resolveColor(),
-            'url' => route('agent.tickets.show', $this->ticket->uuid),
+            // Use relative URL for database and broadcast to avoid domain mismatch
+            'url' => $this->resolveUrl($notifiable, false),
         ];
     }
 
@@ -72,21 +78,30 @@ class TicketNotification extends Notification implements ShouldQueue
         return 'user';
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail($notifiable): \Illuminate\Notifications\Messages\MailMessage
     {
         $title = $this->resolveTitle();
         $message = $this->resolveMessage();
-        $url = route('agent.tickets.show', $this->ticket->uuid);
+        $url = $this->resolveUrl($notifiable, true);
 
         return (new \Illuminate\Notifications\Messages\MailMessage)
             ->subject($title)
+            ->priority(3) // Fix TypeError: priority must be int
             ->greeting(app()->getLocale() == 'ar' ? 'مرحبا!' : 'Hello!')
             ->line($message)
             ->action(app()->getLocale() == 'ar' ? 'عرض التذكرة' : 'View Ticket', $url)
             ->line(app()->getLocale() == 'ar' ? 'شكرا لاستخدامك نظامنا!' : 'Thank you for using our system!');
+    }
+
+    protected function resolveUrl($notifiable, $absolute = true): string
+    {
+        // If the notifiable is an agent/staff
+        if (method_exists($notifiable, 'hasAnyRole') && $notifiable->hasAnyRole(['admin', 'agent', 'super-admin', 'manager', 'staff'])) {
+            return route('agent.tickets.show', $this->ticket->uuid, $absolute);
+        }
+
+        // Otherwise they are the normal user (student/owner)
+        return route('tickets.show', $this->ticket->uuid, $absolute);
     }
 
     /**

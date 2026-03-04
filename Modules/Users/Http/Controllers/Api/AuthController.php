@@ -54,36 +54,13 @@ class AuthController extends Controller
 
     /**
      * Register User
+     *
+     * SECURITY: Public registration is DISABLED for this system.
+     * User accounts are created by administrators via the admin panel only.
      */
     public function register(Request $request)
     {
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'device_name' => 'required|string'
-        ]);
-
-        $user = User::create([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'username' => explode('@', $validatedData['email'])[0] . rand(1000, 9999), // Generator
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'status' => 'active'
-        ]);
-
-        $token = $user->createToken($request->device_name)->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User registered successfully',
-            'data' => [
-                'token' => $token,
-                'user' => new UserResource($user)
-            ]
-        ], 201);
+        abort(403, 'Public registration is disabled. Please contact your administrator.');
     }
 
 

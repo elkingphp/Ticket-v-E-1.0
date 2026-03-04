@@ -32,4 +32,9 @@ return [
     'audit_log_details' => 'تفاصيل سجل المراجعة',
     'loading' => 'جاري التحميل',
     'export_csv' => 'تصدير CSV',
+    'category' => 'الفئة',
+    'actor' => 'القائم بالفعل',
+    'field' => 'الحقل',
+    'data_changes' => 'تغييرات البيانات',
+    'no_detailed_changes' => 'لا توجد تغييرات مفصلة متاحة',
 ];

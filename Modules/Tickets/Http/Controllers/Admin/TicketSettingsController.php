@@ -20,11 +20,13 @@ class TicketSettingsController extends Controller
             'allow_reopen' => 1,
             'max_tickets_per_user_per_day' => 5,
             'ticket_number_format' => 'TICK-{ID}',
+            'ticket_admin_role' => 'admin',
         ];
 
         $settings = array_merge($defaults, $settings->toArray());
+        $roles = \Modules\Users\Domain\Models\Role::all();
 
-        return view('tickets::admin.settings.index', compact('settings'));
+        return view('tickets::admin.settings.index', compact('settings', 'roles'));
     }
 
     public function update(Request $request)
@@ -34,6 +36,7 @@ class TicketSettingsController extends Controller
             'allow_reopen' => 'required|boolean',
             'max_tickets_per_user_per_day' => 'required|integer|min:1',
             'ticket_number_format' => 'required|string|max:100',
+            'ticket_admin_role' => 'required|string|max:100',
         ]);
 
         foreach ($data as $name => $value) {

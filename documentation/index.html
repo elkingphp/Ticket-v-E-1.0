@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Ticket & Education Management System | Documentation</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        .cover-container {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            margin-top: 20px;
+            background: linear-gradient(135deg, #1a237e 0%, #3f51b5 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .cover-container h1 {
+            color: white;
+            border: none;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .cover-container p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .toc-card {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .toc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .toc-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="doc-header">
+        <h1>Enterprise Ticket & Education Management System</h1>
+    </header>
+
+    <div class="doc-wrapper" style="display: block;"> <!-- Index has no sidebar -->
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 40px;">
+
+            <div class="cover-container">
+                <h1>ETEMS</h1>
+                <p>نظام المؤسسة المتكامل لإدارة التذاكر والعمليات التعليمية</p>
+                <div style="margin-top: 30px;">
+                    <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">إصدار 2.5.0</span>
+                    <span class="badge"
+                        style="background: rgba(255,255,255,0.2); color: white; margin-right: 10px;">فبراير 2026</span>
+                </div>
+            </div>
+
+            <section id="table-of-contents">
+                <h2 style="text-align: center;">دليل المحتويات</h2>
+                <div class="toc-grid">
+                    <a href="introduction.html" class="toc-card">
+                        <h3>01. مـقـدمـة</h3>
+                        <p>نظرة عامة على النظام والأهداف والمميزات الأساسية.</p>
+                    </a>
+                    <a href="system-overview.html" class="toc-card">
+                        <h3>02. هيكل النظام</h3>
+                        <p>شرح للموديولات والوظائف البرمجية المتكاملة.</p>
+                    </a>
+                    <a href="installation.html" class="toc-card">
+                        <h3>03. التثبيت والتشغيل</h3>
+                        <p>المتطلبات التقنية وكيفية البدء في استخدام النظام.</p>
+                    </a>
+                    <a href="dashboard.html" class="toc-card">
+                        <h3>04. لوحة التحكم</h3>
+                        <p>شرح واجهة المستخدم، الإحصائيات والاختصارات.</p>
+                    </a>
+                    <a href="tickets-module.html" class="toc-card">
+                        <h3>05. موديول التذاكر</h3>
+                        <p>إدارة الطلبات، مراحل التذاكر، وسير العمل الفني.</p>
+                    </a>
+                    <a href="education-module.html" class="toc-card">
+                        <h3>06. موديول التعليم</h3>
+                        <p>إدارة المسارات، البرامج التدريبية، والطلاب.</p>
+                    </a>
+                    <a href="attendance-module.html" class="toc-card">
+                        <h3>07. الحضور والغياب</h3>
+                        <p>آلية تسجيل الحضور والتقارير المرتبطة بالمحاضرات.</p>
+                    </a>
+                    <a href="roles-permissions.html" class="toc-card">
+                        <h3>08. الصلاحيات</h3>
+                        <p>إدارة الأدوار وصلاحيات الوصول للمستخدمين.</p>
+                    </a>
+                    <a href="workflow.html" class="toc-card">
+                        <h3>09. دورة العمل</h3>
+                        <p>مثال عملي يوضح رحلة العملية من البداية للنهاية.</p>
+                    </a>
+                    <a href="reports.html" class="toc-card">
+                        <h3>10. التقارير</h3>
+                        <p>استخراج البيانات، الفلاتر، والتصدير للملفات.</p>
+                    </a>
+                    <a href="faq.html" class="toc-card">
+                        <h3>11. الأسئلة الشائعة</h3>
+                        <p>إجابات على أكثر التساؤلات تكراراً.</p>
+                    </a>
+                    <a href="support.html" class="toc-card">
+                        <h3>12. الدعم الفني</h3>
+                        <p>آليات التواصل والدعم التقني المعتمدة.</p>
+                    </a>
+                </div>
+            </section>
+
+            <footer class="doc-footer">
+                <p>&copy; 2026 Enterprise Ticket & Education Management System. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

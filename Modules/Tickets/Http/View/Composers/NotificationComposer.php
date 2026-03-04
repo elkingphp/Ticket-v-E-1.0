@@ -25,8 +25,21 @@ class NotificationComposer
             $categories = [];
 
             // Augment notifications with resolved categories/modules
-            $notifications->each(function ($n) {
-                // 1. Resolve Category (system vs user)
+            $systemModules = ['Core', 'General', 'Users', 'Settings', 'Audit'];
+
+            $notifications->each(function ($n) use ($systemModules) {
+                // 1. Resolve Module
+                if (!isset($n->data['module'])) {
+                    if (preg_match('/Modules\\\\([^\\\\]+)\\\\/', $n->type, $matches)) {
+                        $n->resolved_module = $matches[1];
+                    } else {
+                        $n->resolved_module = 'General';
+                    }
+                } else {
+                    $n->resolved_module = $n->data['module'];
+                }
+
+                // 2. Resolve Category (system vs user)
                 if (!isset($n->data['category'])) {
                     $actor = $n->data['actor_name'] ?? '';
                     if ($actor === 'System' || $actor === 'النظام' || $actor === __('tickets::messages.system')) {
@@ -38,15 +51,9 @@ class NotificationComposer
                     $n->resolved_category = $n->data['category'];
                 }
 
-                // 2. Resolve Module
-                if (!isset($n->data['module'])) {
-                    if (preg_match('/Modules\\\\([^\\\\]+)\\\\/', $n->type, $matches)) {
-                        $n->resolved_module = $matches[1];
-                    } else {
-                        $n->resolved_module = 'General';
-                    }
-                } else {
-                    $n->resolved_module = $n->data['module'];
+                // Force System Modules into system category
+                if (in_array($n->resolved_module, $systemModules)) {
+                    $n->resolved_category = 'system';
                 }
             });
 
@@ -56,10 +63,18 @@ class NotificationComposer
                 'name' => app()->getLocale() == 'ar' ? 'النظام' : 'System',
                 'id' => 'system-noti-tab',
                 'items' => $systemItems,
-                'unread' => $user->unreadNotifications()->where(function ($q) {
+                'unread' => $user->unreadNotifications()->where(function ($q) use ($systemModules) {
                     $q->where('data->category', 'system')
                         ->orWhere('data->actor_name', 'System')
-                        ->orWhere('data->actor_name', 'النظام');
+                        ->orWhere('data->actor_name', 'النظام')
+                        ->orWhereIn('data->module', $systemModules);
+
+                    foreach ($systemModules as $sm) {
+                        $q->orWhere('type', 'like', "Modules\\\\{$sm}\\\\%");
+                    }
+                    $q->orWhere(function ($sq) {
+                        $sq->whereNull('data->module')->where('type', 'not like', 'Modules\\\\%');
+                    });
                 })->count()
             ];
 
@@ -71,8 +86,8 @@ class NotificationComposer
                 $displayName = $moduleName;
                 if ($moduleName === 'Tickets') {
                     $displayName = app()->getLocale() == 'ar' ? 'التذاكر' : 'Tickets';
-                } elseif ($moduleName === 'General') {
-                    $displayName = app()->getLocale() == 'ar' ? 'عام' : 'General';
+                } elseif ($moduleName === 'Educational') {
+                    $displayName = app()->getLocale() == 'ar' ? 'التعليمي' : 'Educational';
                 }
 
                 $categories[strtolower($moduleName)] = [
@@ -80,15 +95,22 @@ class NotificationComposer
                     'id' => strtolower($moduleName) . '-noti-tab',
                     'items' => $items,
                     'unread' => $user->unreadNotifications()->where(function ($q) use ($moduleName) {
-                        if ($moduleName === 'General') {
-                            $q->where(function ($sq) {
-                                $sq->whereNull('data->module')
-                                    ->where('type', 'not like', 'Modules\\\\%');
-                            })->where('data->category', '!=', 'system');
-                        } else {
-                            $q->where('data->module', $moduleName)
-                                ->orWhere('type', 'like', "Modules\\\\{$moduleName}\\\\%");
-                        }
+                        $q->where(function ($sq) use ($moduleName) {
+                            $sq->where('data->module', $moduleName)
+                                ->orWhere(function ($ssq) use ($moduleName) {
+                                    $ssq->whereNull('data->module')
+                                        ->where('type', 'like', "Modules\\\\{$moduleName}\\\\%");
+                                });
+                        })->where(function ($sq) {
+                            $sq->where('data->category', '!=', 'system')
+                                ->orWhereNull('data->category');
+                        })->where(function ($sq) {
+                            $sq->where('data->actor_name', '!=', 'System')
+                                ->orWhereNull('data->actor_name');
+                        })->where(function ($sq) {
+                            $sq->where('data->actor_name', '!=', 'النظام')
+                                ->orWhereNull('data->actor_name');
+                        });
                     })->count()
                 ];
             }

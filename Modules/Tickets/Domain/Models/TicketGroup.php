@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TicketGroup extends Model
 {
-    use HasFactory;
+    use HasFactory, \Modules\Core\Domain\Traits\MustBeApproved;
 
 
     protected $table = 'tickets.ticket_groups';

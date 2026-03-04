@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TicketPriority extends Model
 {
-    use HasFactory;
+    use HasFactory, \Modules\Core\Domain\Traits\MustBeApproved;
 
 
     protected $table = 'tickets.ticket_priorities';

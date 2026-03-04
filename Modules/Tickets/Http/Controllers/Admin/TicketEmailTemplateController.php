@@ -51,7 +51,7 @@ class TicketEmailTemplateController extends Controller
         $template->update($request->only('subject', 'body'));
 
         return redirect()->route('admin.tickets.templates.index')
-            ->with('success', __('tickets::messages.messages.updated'));
+            ->with('success', __('tickets::messages.template_updated'));
     }
 
     public function destroy(TicketEmailTemplate $template)
@@ -59,7 +59,7 @@ class TicketEmailTemplateController extends Controller
         $template->delete();
 
         return redirect()->route('admin.tickets.templates.index')
-            ->with('success', __('tickets::messages.messages.deleted'));
+            ->with('success', __('tickets::messages.messages.email_template_deleted'));
     }
 
     public function preview(TicketEmailTemplate $template)
@@ -67,23 +67,30 @@ class TicketEmailTemplateController extends Controller
         $body = $template->body;
 
         $placeholders = [
-            '{ticket_id}' => 'TICK-2024-001',
-            '{subject}' => 'مشكلة في الولوج إلى المنصة',
-            '{user_name}' => 'أحمد محمد',
-            '{url}' => route('tickets.show', 1),
+            'ticket_id' => '00000000-0000-0000-0000-000000000001',
+            'ticket_number' => 'TICK-2024-001',
+            'subject' => 'مشكلة في الولوج إلى المنصة',
+            'customer_name' => 'أحمد محمد',
+            'user_name' => 'أحمد محمد',
+            'status' => 'قيد المعالجة',
+            'priority' => 'عالي',
+            'assignee' => 'فني الدعم',
+            'url' => route('tickets.show', 1),
+            'link' => route('tickets.show', 1),
+            'agent_link' => route('agent.tickets.show', 1),
+            'logo' => get_setting('logo_light') ? asset(get_setting('logo_light')) : 'https://via.placeholder.com/150',
+            'app_name' => get_setting('site_name', 'Digilians'),
         ];
 
-        $content = str_replace(array_keys($placeholders), array_values($placeholders), $body);
+        $content = $body;
+        foreach ($placeholders as $key => $value) {
+            $content = str_replace(["{{ $key }}", "{{$key}}", "{ $key }", "{$key}"], (string) ($value ?? ''), $content);
+        }
 
         // Simple wrapper for preview
         return "
-            <div style='font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #eee;'>
-                <div style='margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #405189;'>
-                    <h2 style='margin:0; color: #405189;'>{$template->subject}</h2>
-                </div>
-                <div style='line-height: 1.6;'>
-                    {$content}
-                </div>
+            <div dir='" . (app()->isLocale('ar') ? 'rtl' : 'ltr') . "' style='font-family: sans-serif;'>
+                {$content}
             </div>
         ";
     }
@@ -100,12 +107,25 @@ class TicketEmailTemplateController extends Controller
 
             $body = $template->body;
             $placeholders = [
-                '{ticket_id}' => 'TEST-001',
-                '{subject}' => 'Test Subject',
-                '{user_name}' => 'Test User',
-                '{url}' => url('/'),
+                'ticket_id' => 'TEST-UUID-123',
+                'ticket_number' => 'TEST-001',
+                'subject' => 'Test Subject',
+                'customer_name' => 'Test User',
+                'user_name' => 'Test User',
+                'status' => 'Testing',
+                'priority' => 'Low',
+                'assignee' => 'Auto Tester',
+                'url' => url('/'),
+                'link' => url('/'),
+                'agent_link' => url('/admin'),
+                'logo' => get_setting('logo_light') ? asset(get_setting('logo_light')) : 'https://via.placeholder.com/150',
+                'app_name' => get_setting('site_name', 'Digilians'),
             ];
-            $content = str_replace(array_keys($placeholders), array_values($placeholders), $body);
+
+            $content = $body;
+            foreach ($placeholders as $key => $value) {
+                $content = str_replace(["{{ $key }}", "{{$key}}", "{ $key }", "{$key}"], (string) ($value ?? ''), $content);
+            }
 
             // Use the configured mailer
             Mail::html($content, function ($message) use ($request, $template) {
@@ -136,11 +156,16 @@ class TicketEmailTemplateController extends Controller
     private function applyMailSettings()
     {
         $mailer = get_setting('mail_mailer', 'smtp');
+        $encryption = get_setting('mail_encryption');
+
+        if ($encryption === 'none' || empty($encryption)) {
+            $encryption = null;
+        }
 
         Config::set('mail.default', $mailer);
         Config::set('mail.mailers.smtp.host', get_setting('mail_host', config('mail.mailers.smtp.host')));
-        Config::set('mail.mailers.smtp.port', get_setting('mail_port', config('mail.mailers.smtp.port')));
-        Config::set('mail.mailers.smtp.encryption', get_setting('mail_encryption', config('mail.mailers.smtp.encryption')));
+        Config::set('mail.mailers.smtp.port', (int) get_setting('mail_port', config('mail.mailers.smtp.port')));
+        Config::set('mail.mailers.smtp.encryption', $encryption);
         Config::set('mail.mailers.smtp.username', get_setting('mail_username', config('mail.mailers.smtp.username')));
         Config::set('mail.mailers.smtp.password', get_setting('mail_password', config('mail.mailers.smtp.password')));
 

@@ -62,7 +62,7 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function update(Request $request)
     {
-        if (!auth()->user()->can('update profile')) {
+        if (!auth()->user()->can('profile.update')) {
             return back()->with('error', __('core::profile.unauthorized'));
         }
 
@@ -106,7 +106,7 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function updateAvatar(Request $request)
     {
-        if (!auth()->user()->can('update profile')) {
+        if (!auth()->user()->can('profile.update')) {
             return response()->json(['success' => false, 'message' => __('Unauthorized')], 403);
         }
 
@@ -137,7 +137,7 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function deleteAvatar(Request $request)
     {
-        if (!auth()->user()->can('update profile')) {
+        if (!auth()->user()->can('profile.update')) {
             return response()->json(['success' => false, 'message' => __('core::profile.unauthorized')], 403);
         }
 

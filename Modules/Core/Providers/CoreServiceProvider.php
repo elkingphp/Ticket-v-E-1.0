@@ -3,6 +3,7 @@
 namespace Modules\Core\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -36,6 +37,9 @@ class CoreServiceProvider extends ServiceProvider
                     ->deletePermissionsByModule($module->getName());
             }
         });
+
+        // Global View Composer for System Settings
+        View::composer('*', \Modules\Core\Http\View\Composers\SystemSettingsComposer::class);
     }
 
     /**
@@ -48,7 +52,7 @@ class CoreServiceProvider extends ServiceProvider
 
         // Repositories
         $this->app->bind(
-            \Modules\Core\Domain\Interfaces\SettingRepositoryInterface::class ,
+            \Modules\Core\Domain\Interfaces\SettingRepositoryInterface::class,
             \Modules\Core\Infrastructure\Repositories\SettingRepository::class
         );
 
@@ -56,12 +60,12 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton(\Modules\Core\Application\Services\SettingsService::class);
         $this->app->singleton(\Modules\Core\Application\Services\ModulePermissionService::class);
         $this->app->singleton(
-            \Modules\Core\Domain\Interfaces\ModuleManagerInterface::class ,
+            \Modules\Core\Domain\Interfaces\ModuleManagerInterface::class,
             \Modules\Core\Application\Services\ModuleManagerService::class
         );
         $this->app->singleton(\Modules\Core\Application\Services\HealthOrchestratorService::class);
         $this->app->singleton(
-            \Modules\Core\Domain\Interfaces\BackupServiceInterface::class ,
+            \Modules\Core\Domain\Interfaces\BackupServiceInterface::class,
             \Modules\Core\Application\Services\BackupService::class
         );
         $this->app->singleton(\Modules\Core\Application\Services\BackupService::class);
@@ -86,11 +90,12 @@ class CoreServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $this->commands([
-            \Modules\Core\Infrastructure\Console\AuditCleanupCommand::class ,
-            \Modules\Core\Infrastructure\Console\BackupListCommand::class ,
-            \Modules\Core\Infrastructure\Console\BackupRestoreCommand::class ,
-            \Modules\Core\Infrastructure\Console\SyncModulesCommand::class ,
-            \Modules\Core\Infrastructure\Console\ChaosSimulationCommand::class ,
+            \Modules\Core\Infrastructure\Console\AuditCleanupCommand::class,
+            \Modules\Core\Infrastructure\Console\BackupListCommand::class,
+            \Modules\Core\Infrastructure\Console\BackupRestoreCommand::class,
+            \Modules\Core\Infrastructure\Console\SyncModulesCommand::class,
+            \Modules\Core\Infrastructure\Console\ChaosSimulationCommand::class,
+            \Modules\Core\Infrastructure\Console\MigrateLegacyData::class,
         ]);
     }
 
@@ -115,8 +120,7 @@ class CoreServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->nameLower);
             $this->loadJsonTranslationsFrom($langPath);
-        }
-        else {
+        } else {
             $this->loadTranslationsFrom(module_path($this->name, 'Resources/lang'), $this->nameLower);
             $this->loadJsonTranslationsFrom(module_path($this->name, 'Resources/lang'));
         }

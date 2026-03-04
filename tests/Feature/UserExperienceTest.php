@@ -85,7 +85,7 @@ class UserExperienceTest extends TestCase
         Storage::fake('public');
 
         $user = User::factory()->create();
-        $user->givePermissionTo('update profile');
+        $user->givePermissionTo('profile.update');
 
         $file = UploadedFile::fake()->image('avatar.jpg');
 

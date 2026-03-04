@@ -29,15 +29,32 @@ class SettingsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->name, 'Infrastructure/Database/Migrations'));
 
         // Sync Application Settings with Config
-        if (!app()->runningInConsole() && function_exists('get_setting')) {
-            if ($siteName = get_setting('site_name')) {
-                config(['app.name' => $siteName]);
+        try {
+            if (function_exists('get_setting') && \Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                if ($siteName = get_setting('site_name')) {
+                    config(['app.name' => $siteName]);
+                }
+
+                // Sync Mail Settings
+                if ($mailer = get_setting('mail_mailer')) {
+                    config(['mail.default' => $mailer]);
+                    config(['mail.mailers.' . $mailer . '.host' => get_setting('mail_host', 'smtp.mailtrap.io')]);
+                    config(['mail.mailers.' . $mailer . '.port' => get_setting('mail_port', '2525')]);
+                    config(['mail.mailers.' . $mailer . '.username' => get_setting('mail_username')]);
+                    config(['mail.mailers.' . $mailer . '.password' => get_setting('mail_password')]);
+                    config(['mail.mailers.' . $mailer . '.encryption' => get_setting('mail_encryption', 'tls')]);
+
+                    config(['mail.from.address' => get_setting('mail_from_address', 'no-reply@digilians.com')]);
+                    config(['mail.from.name' => get_setting('mail_from_name', $siteName ?? 'Digilians')]);
+                }
+
+                // For 2FA, Fortify uses app.name by default, but we can ensure consistency
+                if ($twoFaName = get_setting('2fa_app_name')) {
+                    config(['fortify.2fa_app_name' => $twoFaName]);
+                }
             }
-            // For 2FA, Fortify uses app.name by default, but we can ensure consistency
-            if ($twoFaName = get_setting('2fa_app_name')) {
-                // If we want a specific 2FA name different from site name
-                // config(['fortify.2fa_app_name' => $twoFaName]); 
-            }
+        } catch (\Exception $e) {
+            // Avoid failing during initial migration
         }
     }
 

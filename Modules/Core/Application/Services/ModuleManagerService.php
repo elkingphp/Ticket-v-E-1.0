@@ -8,6 +8,7 @@ use Modules\Core\Domain\Models\Module;
 use Modules\Core\Domain\Events\ERMO\{ModuleActivated, ModuleDisabled, ModuleMaintenanceEnabled};
 use Nwidart\Modules\Facades\Module as NwidartModule;
 
+use Illuminate\Support\Str;
 use Modules\Core\Domain\Interfaces\ModuleManagerInterface;
 
 class ModuleManagerService implements ModuleManagerInterface
@@ -36,13 +37,15 @@ class ModuleManagerService implements ModuleManagerInterface
     public function refreshCache(): array
     {
         $modules = Module::all()->mapWithKeys(function ($module) {
-            return [$module->slug => [
-                'status' => $module->status,
-                'version' => $module->state_version,
-                'is_core' => $module->is_core,
-                'flags' => $module->feature_flags,
-                'max_concurrent' => $module->max_concurrent_requests
-            ]];
+            return [
+                $module->slug => [
+                    'status' => $module->status,
+                    'version' => $module->state_version,
+                    'is_core' => $module->is_core,
+                    'flags' => $module->feature_flags,
+                    'max_concurrent' => $module->max_concurrent_requests
+                ]
+            ];
         })->toArray();
 
         $maxVersion = DB::table('modules')->max('state_version') ?? 1;
@@ -60,6 +63,7 @@ class ModuleManagerService implements ModuleManagerInterface
     {
         return DB::transaction(function () use ($slug, $targetStatus, $reason) {
             // High-precision pessimistic lock
+            /** @var Module $module */
             $module = Module::where('slug', $slug)->lockForUpdate()->firstOrFail();
 
             if ($module->is_core && in_array($targetStatus, ['disabled', 'maintenance'])) {
@@ -77,7 +81,7 @@ class ModuleManagerService implements ModuleManagerInterface
 
             $oldStatus = $module->status;
             $module->transitionTo($targetStatus);
-            
+
             // Log to Audit Log
             app(\Modules\Core\Application\Services\AuditLoggerService::class)->log(
                 "module.transition",
@@ -126,21 +130,29 @@ class ModuleManagerService implements ModuleManagerInterface
     public function syncFromFilesystem(): void
     {
         $nModules = NwidartModule::all();
-        
+
         DB::transaction(function () use ($nModules) {
             foreach ($nModules as $nModule) {
-                Module::updateOrCreate(
-                    ['slug' => $nModule->getLowerName()],
-                    [
-                        'name' => $nModule->getName(),
-                        'version' => $nModule->get('version', '1.0.0'),
-                        'priority' => $nModule->get('priority', 0),
-                        'metadata' => [
-                            'description' => $nModule->getDescription(),
-                            'path' => $nModule->getPath(),
-                        ]
+                $slug = $nModule->getLowerName();
+                $module = Module::where('slug', $slug)->first();
+
+                if (!$module) {
+                    $module = new Module();
+                    $module->id = (string) Str::uuid();
+                    $module->slug = $slug;
+                }
+
+                $module->fill([
+                    'name' => $nModule->getName(),
+                    'version' => $nModule->get('version', '1.0.0'),
+                    'priority' => $nModule->get('priority', 0),
+                    'metadata' => [
+                        'description' => $nModule->getDescription(),
+                        'path' => $nModule->getPath(),
                     ]
-                );
+                ]);
+
+                $module->save();
             }
         });
 
@@ -150,7 +162,8 @@ class ModuleManagerService implements ModuleManagerInterface
     protected function syncWithNwidart(string $slug, string $status): void
     {
         $nModule = NwidartModule::find($slug);
-        if (!$nModule) return;
+        if (!$nModule)
+            return;
 
         if ($status === 'active') {
             $nModule->enable();
@@ -185,7 +198,7 @@ class ModuleManagerService implements ModuleManagerInterface
 
     protected function dispatchEvent(Module $module, string $status): void
     {
-        match($status) {
+        match ($status) {
             'active' => ModuleActivated::dispatch($module),
             'disabled' => ModuleDisabled::dispatch($module),
             'maintenance' => ModuleMaintenanceEnabled::dispatch($module),

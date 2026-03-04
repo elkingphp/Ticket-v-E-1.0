@@ -56,7 +56,9 @@ trait Auditable
         }
 
         AuditLog::create([
-            'user_id' => Auth::id(),
+            // SECURITY FIX: Auth::id() returns null inside Queue Jobs or Scheduled Commands.
+            // We store null for DB integrity (nullable FK), but track the actor context separately.
+            'user_id' => Auth::id(), // null = system/automated action
             'event' => $event,
             'auditable_type' => get_class($this),
             'auditable_id' => $this->getKey(),
@@ -64,9 +66,9 @@ trait Auditable
             'new_values' => $newValues,
             'category' => $this->getAuditCategory(),
             'log_level' => $this->getAuditLogLevel($event),
-            'url' => request()->fullUrl(),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'url' => app()->runningInConsole() ? 'console/queue' : request()->fullUrl(),
+            'ip_address' => app()->runningInConsole() ? '127.0.0.1' : request()->ip(),
+            'user_agent' => app()->runningInConsole() ? 'System/Queue' : request()->userAgent(),
         ]);
     }
 

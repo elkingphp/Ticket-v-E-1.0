@@ -29,12 +29,10 @@ class AuditLoggerService
 
             if ($level === 'critical') {
                 $this->saveSync($data);
-            }
-            else {
+            } else {
                 $this->saveAsync($data);
             }
-        }
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             $this->fallback($e, $data ?? []);
         }
     }

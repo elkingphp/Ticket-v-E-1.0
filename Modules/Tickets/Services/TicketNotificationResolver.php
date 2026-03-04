@@ -31,9 +31,18 @@ class TicketNotificationResolver
                     $recipients = $recipients->merge($groupMembers);
                 }
 
-                // 2. Notify all Admins/Supervisors so they are aware of new tickets
-                $admins = User::role(['Admin', 'Super Admin', 'Supervisor'])->get();
-                $recipients = $recipients->merge($admins);
+                // 2. Notify Admis defined in the settings
+                $settingRepo = app(\Modules\Settings\Domain\Interfaces\SettingRepositoryInterface::class);
+                $rolesJson = $settingRepo->getByKey('tickets_notification_roles', '["super-admin"]');
+                $notificationRoles = json_decode($rolesJson, true) ?? ['super-admin'];
+
+                // Get roles that actually exist in the DB to avoid RoleDoesNotExist exception
+                $existingRoles = \Modules\Users\Domain\Models\Role::whereIn('name', $notificationRoles)->pluck('name')->toArray();
+
+                if (!empty($existingRoles)) {
+                    $admins = User::role($existingRoles)->get();
+                    $recipients = $recipients->merge($admins);
+                }
                 break;
 
             case 'assigned':
@@ -63,8 +72,23 @@ class TicketNotificationResolver
                     $recipients = $recipients->merge($groupMembers);
                 }
 
-                // 3. The owner of the ticket (unless they are the actor)
-                if ($ticket->user_id && $ticket->user_id != $actorId) {
+                // 3. Fallback: If no single agent and no group is assigned, OR the group has 0 members, notify default roles
+                if ($recipients->isEmpty()) {
+                    $settingRepo = app(\Modules\Settings\Domain\Interfaces\SettingRepositoryInterface::class);
+                    $rolesJson = $settingRepo->getByKey('tickets_notification_roles', '["super-admin"]');
+                    $notificationRoles = json_decode($rolesJson, true) ?? ['super-admin'];
+
+                    $existingRoles = \Modules\Users\Domain\Models\Role::whereIn('name', $notificationRoles)->pluck('name')->toArray();
+
+                    if (!empty($existingRoles)) {
+                        $admins = User::role($existingRoles)->get();
+                        $recipients = $recipients->merge($admins);
+                    }
+                }
+
+                // 4. The owner of the ticket (unless they are the actor or the reply is an internal note)
+                $isInternal = $meta['is_internal'] ?? false;
+                if ($ticket->user_id && $ticket->user_id != $actorId && !$isInternal) {
                     $owner = User::find($ticket->user_id);
                     if ($owner)
                         $recipients->push($owner);

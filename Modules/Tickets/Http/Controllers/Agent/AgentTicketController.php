@@ -33,7 +33,18 @@ class AgentTicketController extends Controller
 
         // Base Query
         $query = Ticket::query()
-            ->with(['user', 'status', 'priority', 'category', 'assignedTo', 'assignedGroup']);
+            ->with([
+                'user',
+                'status',
+                'priority',
+                'category',
+                'assignedTo',
+                'assignedGroup',
+                'lecture.sessionType',
+                'approvalRequests' => function ($q) {
+                    $q->where('status', 'pending')->where('action', 'delete');
+                }
+            ]);
 
         // Filters
         if ($request->has('view')) {
@@ -72,7 +83,9 @@ class AgentTicketController extends Controller
                     ->orWhere('ticket_number', 'ilike', '%' . $request->search . '%')
                     ->orWhere('uuid', 'ilike', '%' . $request->search . '%') // Retained existing UUID search
                     ->orWhereHas('user', function ($qu) use ($request) {
-                        $qu->where('name', 'ilike', '%' . $request->search . '%');
+                        $qu->where('first_name', 'ilike', '%' . $request->search . '%')
+                            ->orWhere('last_name', 'ilike', '%' . $request->search . '%')
+                            ->orWhere('email', 'ilike', '%' . $request->search . '%');
                     });
             });
         }
@@ -89,9 +102,27 @@ class AgentTicketController extends Controller
         $tickets = $query->latest()->paginate(20)->withQueryString();
         $statuses = TicketStatus::all();
         $priorities = TicketPriority::all();
-        $groups = TicketGroup::all();
+        $groups = TicketGroup::with('members')->get();
 
-        return view('tickets::agent.index', compact('tickets', 'statuses', 'priorities', 'groups', 'stats'));
+        // Fetch agents based on roles defined in settings
+        $supportRoles = get_setting('tickets_support_group_roles', []);
+        if (is_string($supportRoles)) {
+            $supportRoles = json_decode($supportRoles, true) ?? [];
+        }
+
+        $agents = \Modules\Users\Domain\Models\User::with('roles');
+        if (!empty($supportRoles)) {
+            $agents->whereHas('roles', function ($q) use ($supportRoles) {
+                if (is_numeric($supportRoles[0] ?? null)) {
+                    $q->whereIn('id', $supportRoles);
+                } else {
+                    $q->whereIn('name', $supportRoles);
+                }
+            });
+        }
+        $agents = $agents->orderBy('first_name')->get();
+
+        return view('tickets::agent.index', compact('tickets', 'statuses', 'priorities', 'groups', 'stats', 'agents'));
     }
 
     /**
@@ -99,33 +130,38 @@ class AgentTicketController extends Controller
      */
     public function show($uuid)
     {
-        $ticket = Ticket::where('uuid', $uuid)
-            ->with(['user', 'status', 'priority', 'category', 'complaint', 'subComplaints', 'threads.user', 'threads.attachments', 'attachments', 'lockedBy', 'activities.user'])
-            ->firstOrFail();
+        /** @var Ticket $ticket */
+        $ticket = Ticket::where('uuid', $uuid)->firstOrFail();
 
         $user = Auth::user();
+
+        // If the user has any helpdesk permission → they can view ANY ticket
+        $hasHelpdeskAccess = $user->can('tickets.reply')
+            || $user->can('tickets.distribute')
+            || $user->can('tickets.view_desk');
+
+        if (!$hasHelpdeskAccess) {
+            // Regular user: can only view their own ticket via the user-facing route
+            if ($ticket->user_id === $user->id) {
+                return redirect()->route('tickets.show', $uuid);
+            }
+            abort(404);
+        }
+
+        $ticket->load(['user', 'status', 'priority', 'category', 'complaint', 'subComplaints', 'threads.user', 'threads.attachments', 'attachments', 'lockedBy', 'activities.user', 'lecture.sessionType', 'lecture.room.floor.building', 'lecture.supervisor']);
+
         $isLocked = false;
         $lockedByAnother = false;
 
         if ($ticket->locked_by && $ticket->locked_by != $user->id) {
-            // Check if lock is still valid (e.g., within 30 minutes)
             if ($ticket->locked_at && $ticket->locked_at->gt(now()->subMinutes(30))) {
                 $lockedByAnother = true;
             } else {
-                // Lock expired, take over
-                $ticket->update([
-                    'locked_by' => $user->id,
-                    'locked_at' => now(),
-                ]);
+                $ticket->update(['locked_by' => $user->id, 'locked_at' => now()]);
             }
         } elseif (!$ticket->locked_by) {
-            // Not locked, lock it
-            $ticket->update([
-                'locked_by' => $user->id,
-                'locked_at' => now(),
-            ]);
+            $ticket->update(['locked_by' => $user->id, 'locked_at' => now()]);
         } else {
-            // Already locked by me, refresh lock
             $ticket->update(['locked_at' => now()]);
         }
 
@@ -151,7 +187,14 @@ class AgentTicketController extends Controller
             ->oldest()
             ->first();
 
-        return view('tickets::agent.show', compact('ticket', 'statuses', 'priorities', 'groups', 'groupMembers', 'lockedByAnother', 'similarTickets', 'firstAction', 'createdActivity'));
+        $traineeProfile = null;
+        if ($ticket->user) {
+            $traineeProfile = \Modules\Educational\Domain\Models\TraineeProfile::with(['program', 'group', 'jobProfile'])
+                ->where('user_id', $ticket->user->id)
+                ->first();
+        }
+
+        return view('tickets::agent.show', compact('ticket', 'statuses', 'priorities', 'groups', 'groupMembers', 'lockedByAnother', 'similarTickets', 'firstAction', 'createdActivity', 'traineeProfile'));
     }
 
     /**
@@ -260,6 +303,8 @@ class AgentTicketController extends Controller
 
     /**
      * Assign ticket.
+     * - Assigning to self: requires tickets.reply
+     * - Assigning to another user: requires tickets.distribute
      */
     public function assign(Request $request, $uuid)
     {
@@ -272,17 +317,22 @@ class AgentTicketController extends Controller
         $user = Auth::user();
         $assignee = \Modules\Users\Domain\Models\User::findOrFail($request->user_id);
 
+        // Enforce: assigning to someone else requires tickets.distribute
+        if ($assignee->id !== $user->id && !$user->can('tickets.distribute')) {
+            abort(403, __('tickets::messages.error'));
+        }
+
         $oldAssignee = $ticket->assignedTo;
 
         if (!$oldAssignee || $oldAssignee->id !== $assignee->id) {
             $ticket->update([
                 'assigned_to' => $assignee->id,
-                'assigned_group_id' => null // Clear group when assigned to specific person? Or keep? Usually we clear it if it's assigned to a person.
+                'assigned_group_id' => null
             ]);
 
             // Centralized Log & Notification
             $this->activityService->record($ticket, 'assigned', [
-                'agent_name' => $assignee->full_name,
+                'agent_name' => $assignee->full_name ?? $assignee->name,
                 'actor_name' => $user->full_name ?? $user->name
             ]);
         }
@@ -349,5 +399,100 @@ class AgentTicketController extends Controller
             ->firstOrFail();
 
         return view('tickets::agent.print', compact('ticket'));
+    }
+
+    /**
+     * Submit a delete request for a ticket (requires admin approval).
+     * Permission: tickets.delete_requires_approval
+     */
+    public function requestDelete(Request $request, $uuid)
+    {
+        $request->validate([
+            'reason' => 'required|string|min:10|max:1000',
+        ]);
+
+        /** @var Ticket $ticket */
+        $ticket = Ticket::where('uuid', $uuid)->firstOrFail();
+        $user = Auth::user();
+
+        // Check if a pending request already exists
+        $existing = $ticket->approvalRequests()
+            ->where('action', 'delete')
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existing) {
+            return back()->with('warning', __('tickets::messages.delete_request_already_pending'));
+        }
+
+        // Create the approval request
+        $ticket->approvalRequests()->create([
+            'action' => 'delete',
+            'requested_by' => $user->id,
+            'reason' => $request->reason,
+            'status' => 'pending',
+            'metadata' => [
+                'ticket_uuid' => $ticket->uuid,
+                'ticket_subject' => $ticket->subject,
+                'requested_by' => $user->full_name ?? $user->name,
+            ],
+        ]);
+
+        // Log the activity
+        $this->activityService->record($ticket, 'delete_requested', [
+            'actor_name' => $user->full_name ?? $user->name,
+            'reason' => $request->reason,
+        ]);
+
+        return back()->with('success', __('tickets::messages.delete_request_submitted'));
+    }
+
+    /**
+     * Bulk close multiple tickets with a unified reply message.
+     * Permission: tickets.bulk_close
+     */
+    public function bulkClose(Request $request)
+    {
+        $request->validate([
+            'ticket_ids' => 'required|array|min:1|max:100',
+            'ticket_ids.*' => 'integer|exists:pgsql.tickets.tickets,id',
+            'reply_message' => 'required|string|min:5|max:2000',
+        ]);
+
+        $user = Auth::user();
+        $finalStatus = TicketStatus::where('is_final', true)->first();
+
+        if (!$finalStatus) {
+            return back()->with('error', __('tickets::messages.no_final_status'));
+        }
+
+        $tickets = Ticket::whereIn('id', $request->ticket_ids)
+            ->whereDoesntHave('status', fn($q) => $q->where('is_final', true))
+            ->get();
+
+        $closed = 0;
+        foreach ($tickets as $ticket) {
+            /** @var Ticket $ticket */
+            // Add the unified reply as a thread message
+            $ticket->threads()->create([
+                'user_id' => $user->id,
+                'content' => $request->reply_message,
+                'type' => 'message',
+                'is_read_by_staff' => true,
+                'is_read_by_user' => false,
+            ]);
+
+            // Update status to final
+            $this->ticketService->updateStatus($ticket, $finalStatus, $user);
+
+            // Log the activity
+            $this->activityService->record($ticket, 'bulk_closed', [
+                'actor_name' => $user->full_name ?? $user->name,
+            ]);
+
+            $closed++;
+        }
+
+        return back()->with('success', __('tickets::messages.bulk_close_success', ['count' => $closed]));
     }
 }

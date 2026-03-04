@@ -32,4 +32,5 @@ return [
     'audit_log_details' => 'Audit Log Details',
     'loading' => 'Loading',
     'export_csv' => 'Export CSV',
+    'category' => 'Category',
 ];

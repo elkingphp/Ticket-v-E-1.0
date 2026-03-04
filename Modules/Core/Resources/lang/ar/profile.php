@@ -24,6 +24,7 @@ return [
     'status' => 'الحالة',
     'status_reason' => 'سبب الحالة',
     'username' => 'اسم المستخدم',
+    'unread_notifications_count' => 'عدد التنبيهات غير المقروءة',
     'changed_fields_label' => 'الحقول المتغيرة',
     'sudo_title' => 'تأكيد الهوية',
     'sudo_message' => 'هذا الإجراء حساس ويتطلب تأكيد كلمة المرور الخاصة بك للمتابعة.',
@@ -155,6 +156,7 @@ return [
     'available_exports' => 'الملفات المصدرة المتاحة',
     'no_exports_found' => 'لا توجد ملفات مصدرة حالياً.',
     'download' => 'تحميل',
+    'setup_key' => 'مفتاح الإعداد',
     'created_at' => 'تاريخ الإنشاء',
     'size' => 'الحجم',
     'events' => [

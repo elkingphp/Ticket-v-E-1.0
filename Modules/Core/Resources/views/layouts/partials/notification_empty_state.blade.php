@@ -3,7 +3,7 @@
         <i class="ri-notification-off-line text-muted display-4"></i>
     </div>
     <div class="px-4">
-        <h6 class="fs-16 fw-semibold text-dark">{{ app()->getLocale() == 'ar' ? 'لا توجد تنبيهات' : 'No notifications yet' }}</h6>
-        <p class="text-muted mb-0">{{ app()->getLocale() == 'ar' ? 'سنخطرك هنا عند وجود أي تحديثات جديدة.' : "We'll notify you when something new arrives." }}</p>
+        <h6 class="fs-16 fw-semibold text-dark">{{ __('core::notifications.no_notifications') }}</h6>
+        <p class="text-muted mb-0">{{ __('core::notifications.no_notifications_desc') }}</p>
     </div>
 </div>

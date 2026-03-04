@@ -61,15 +61,17 @@ class ERMOController extends Controller
     {
         $modules = Module::all();
         $metrics = $modules->mapWithKeys(function ($m) {
-            return [$m->slug => [
-                'status' => $m->status,
-                'active_requests' => (int) \Illuminate\Support\Facades\Cache::get("ermo:active_requests:{$m->slug}", 0),
-                'state_version' => $m->state_version,
-                'last_transition_at' => $m->updated_at?->toIso8601String(),
-                'health_status' => $m->health_status,
-                'failure_count' => (int) \Illuminate\Support\Facades\Cache::get("ermo:health_failures:{$m->slug}", 0),
-                'is_core' => $m->is_core
-            ]];
+            return [
+                $m->slug => [
+                    'status' => $m->status,
+                    'active_requests' => (int) \Illuminate\Support\Facades\Cache::get("ermo:active_requests:{$m->slug}", 0),
+                    'state_version' => $m->state_version,
+                    'last_transition_at' => $m->updated_at?->toIso8601String(),
+                    'health_status' => $m->health_status,
+                    'failure_count' => (int) \Illuminate\Support\Facades\Cache::get("ermo:health_failures:{$m->slug}", 0),
+                    'is_core' => $m->is_core
+                ]
+            ];
         });
 
         return response()->json([
@@ -87,14 +89,14 @@ class ERMOController extends Controller
         $modules = Module::all();
         $output = "# HELP ermo_module_active_requests Number of current active requests per module\n";
         $output .= "# TYPE ermo_module_active_requests gauge\n";
-        
+
         $stateOutput = "# HELP ermo_module_state Current status (0=disabled, 1=active, 2=maintenance, 3=degraded)\n";
         $stateOutput .= "# TYPE ermo_module_state gauge\n";
 
         // SLA & Performance Metrics
         $performanceOutput = "# HELP ermo_module_latency_ms Average processing latency in ms\n";
         $performanceOutput .= "# TYPE ermo_module_latency_ms gauge\n";
-        
+
         $performanceOutput .= "# HELP ermo_module_uptime_ratio Historical uptime percentage (SLA tracking)\n";
         $performanceOutput .= "# TYPE ermo_module_uptime_ratio gauge\n";
 
@@ -107,16 +109,23 @@ class ERMOController extends Controller
         // Emergency Metrics
         $bypass = config('ermo.emergency_bypass') ? 1 : 0;
         $redisDegraded = \Illuminate\Support\Facades\Cache::store('file')->has('ermo:redis_degraded') ? 1 : 0;
-        
+
         $stateOutput .= "ermo_emergency_mode_active {$bypass}\n";
         $stateOutput .= "ermo_redis_degraded_active {$redisDegraded}\n";
 
         foreach ($modules as $m) {
             $slug = $m->slug;
             $prefix = config('cache.prefix', 'laravel_cache');
-            $activeRequests = (int) \Illuminate\Support\Facades\Redis::get("{$prefix}:ermo:active_requests:{$slug}") ?? 0;
-            
+
+            $activeRequests = 0;
+            try {
+                $activeRequests = (int) \Illuminate\Support\Facades\Redis::get("{$prefix}:ermo:active_requests:{$slug}");
+            } catch (\Exception $e) {
+                // Fallback to 0 if Redis is down
+            }
+
             $stateMap = ['disabled' => 0, 'active' => 1, 'maintenance' => 2, 'degraded' => 3];
+
             $state = $stateMap[$m->status] ?? 0;
 
             $health = $m->health_status === 'healthy' ? 1 : 0;
@@ -134,7 +143,7 @@ class ERMOController extends Controller
             // Observability Data
             $uptime = $m->getUptimePercentage();
             $latency = $m->getAvgLatency();
-            
+
             $performanceOutput .= "ermo_module_latency_ms{module=\"{$slug}\"} {$latency}\n";
             $performanceOutput .= "ermo_module_uptime_ratio{module=\"{$slug}\"} {$uptime}\n";
             $performanceOutput .= "ermo_module_degradation_frequency_total{module=\"{$slug}\"} {$m->degradation_count}\n";
@@ -156,9 +165,9 @@ class ERMOController extends Controller
         $modules = Module::with('dependencies')->get();
 
         $nodes = $modules->map(fn($m) => [
-        'id' => $m->slug,
-        'label' => $m->name,
-        'status' => $m->status
+            'id' => $m->slug,
+            'label' => $m->name,
+            'status' => $m->status
         ]);
 
         $edges = [];
@@ -200,8 +209,7 @@ class ERMOController extends Controller
                 'status' => 'success',
                 'message' => "Module {$request->slug} transitioned to {$request->status}."
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -259,7 +267,7 @@ class ERMOController extends Controller
             }
 
             if ($avgLatency > 500) {
-                 $suggestions[] = [
+                $suggestions[] = [
                     'module' => $slug,
                     'type' => 'optimize',
                     'priority' => 'medium',

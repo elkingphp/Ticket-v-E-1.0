@@ -144,6 +144,8 @@ return [
      */
 
     'features' => [
+        // SECURITY NOTE: Route is kept active to avoid RouteNotFoundException in views.
+        // Actual registration is blocked in CreateNewUser action.
         Features::registration(),
         Features::resetPasswords(),
         // Features::emailVerification(),
@@ -152,9 +154,7 @@ return [
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => false,
-            // 'window' => 0,
         ]),
-
     ],
 
 ];

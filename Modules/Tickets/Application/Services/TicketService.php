@@ -30,16 +30,21 @@ class TicketService
 
     public function generateTicketNumber(): string
     {
-        $format = SystemSetting::where('module', 'tickets')
-            ->where('name', 'ticket_number_format')
-            ->first()?->value ?? 'TICK-{ID}';
+        $format = get_setting('tickets_number_format', 'TICK-{ID}');
 
-        // Get the next ID (roughly, better to use DB sequence or just increment last one)
         $lastId = Ticket::max('id') ?? 0;
         $nextId = $lastId + 1;
 
+        // Support dynamic padding for {ID} using # prefix (e.g., ###{ID} for 4 digits)
+        $format = preg_replace_callback('/(#*)\{ID\}/', function ($m) use ($nextId) {
+            $hashes = $m[1];
+            if (strlen($hashes) > 0) {
+                return str_pad($nextId, strlen($hashes) + 1, '0', STR_PAD_LEFT);
+            }
+            return str_pad($nextId, 6, '0', STR_PAD_LEFT); // Default padding of 6
+        }, $format);
+
         $replacements = [
-            '{ID}' => str_pad($nextId, 6, '0', STR_PAD_LEFT),
             '{YY}' => date('y'),
             '{YYYY}' => date('Y'),
             '{MM}' => date('m'),
@@ -80,6 +85,7 @@ class TicketService
             'complaint_id' => $complaint ? $complaint->id : null,
             'assigned_group_id' => $assignedGroup ? $assignedGroup->id : null,
             'due_at' => $dueAt,
+            'lecture_id' => !empty($data['lecture_id']) ? $data['lecture_id'] : null,
         ]);
 
         // Sync Sub-Complaints

@@ -12,10 +12,11 @@ class CoreDatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            RolesAndPermissionsSeeder::class ,
-            AdminUserSeeder::class ,
-            SecuritySettingsSeeder::class ,
-            NotificationThresholdsSeeder::class ,
+            ModuleActivationSeeder::class,
+            RolesAndPermissionsSeeder::class,
+            AdminUserSeeder::class,
+            SecuritySettingsSeeder::class,
+            NotificationThresholdsSeeder::class,
         ]);
     }
 }

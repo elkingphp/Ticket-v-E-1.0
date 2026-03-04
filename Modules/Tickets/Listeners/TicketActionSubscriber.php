@@ -4,16 +4,18 @@ namespace Modules\Tickets\Listeners;
 
 use Illuminate\Support\Facades\Notification;
 use Modules\Tickets\Events\TicketActionEvent;
-use Modules\Tickets\Notifications\TicketNotification;
+use Modules\Tickets\Services\TicketNotificationDispatcher;
 use Modules\Tickets\Services\TicketNotificationResolver;
 
 class TicketActionSubscriber
 {
     protected $resolver;
+    protected $dispatcher;
 
-    public function __construct(TicketNotificationResolver $resolver)
+    public function __construct(TicketNotificationResolver $resolver, TicketNotificationDispatcher $dispatcher)
     {
         $this->resolver = $resolver;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -29,13 +31,9 @@ class TicketActionSubscriber
 
         $recipients = $this->resolver->resolve($event->ticket, $event->action, $meta);
 
-        // 2. Send the notification if there are recipients
+        // 2. Dispatch notifications appropriately respecting channels and error isolation
         if ($recipients->isNotEmpty()) {
-            Notification::send($recipients, new TicketNotification(
-                $event->ticket,
-                $event->action,
-                $meta
-            ));
+            $this->dispatcher->dispatchToRecipients($recipients, $event->ticket, $event->action, $meta);
         }
     }
 

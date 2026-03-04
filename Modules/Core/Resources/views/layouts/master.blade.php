@@ -12,7 +12,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="user-id" content="{{ auth()->id() }}">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ get_setting('favicon') ? asset(get_setting('favicon')) : asset('assets/images/favicon.ico') }}">
+    <link rel="shortcut icon"
+        href="{{ get_setting('favicon') ? asset(get_setting('favicon')) : asset('assets/images/favicon.ico') }}">
 
 
     <!-- Google Fonts -->
@@ -24,7 +25,7 @@
 
     <!-- Layout config Js -->
     <script src="{{ asset('assets/js/layout.js') }}"></script>
-    @if(app()->getLocale() == 'ar')
+    @if (app()->getLocale() == 'ar')
         <!-- Bootstrap Css -->
         <link href="{{ asset('assets/css/bootstrap-rtl.min.css') }}" rel="stylesheet" type="text/css" />
         <!-- Icons Css -->
@@ -49,7 +50,8 @@
     <!-- Flatpickr css-->
     <link href="{{ asset('assets/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Choices css-->
-    <link href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" rel="stylesheet"
+        type="text/css" />
 
     @vite(['resources/js/app.js', 'Modules/Core/Resources/assets/sass/app.scss', 'Modules/Core/Resources/assets/js/app.js'])
 
@@ -59,9 +61,118 @@
     </script>
 
     @stack('styles')
+    <style>
+        .maintenance-banner {
+            z-index: 1050;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 75, 43, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .pulse-warning {
+            animation: pulse-warning 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse-warning {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .banner-chip {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Optimized Logo and Sidebar Spacing */
+        .navbar-brand-box {
+            padding: 10px 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: auto !important;
+            min-height: 100px !important;
+            background: var(--vz-vertical-menu-bg) !important;
+            z-index: 1001;
+        }
+
+        .logo-lg img {
+            max-height: 100px !important;
+            width: auto !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        .logo-sm img {
+            max-height: 40px !important;
+            width: auto !important;
+        }
+
+        .navbar-brand-box a {
+            overflow: visible !important;
+        }
+
+        /* Ensure topbar doesn't conflict if logo area grows */
+        @media (min-width: 992px) {
+            #page-topbar {
+                /* topbar usually expects 70px, we might need to adjust or keep it separate */
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body class="{{ get_setting('maintenance_mode') === '1' ? 'maintenance-active' : '' }}">
+    @if (get_setting('maintenance_mode') === '1')
+        <div class="maintenance-banner py-2 px-4 shadow-sm text-center">
+            <div class="banner-chip">
+                <i class="ri-error-warning-fill me-2 fs-16 pulse-warning text-warning"></i>
+                <span class="fw-bold">
+                    {{ __('core::messages.maintenance_mode') }}
+                </span>
+            </div>
+        </div>
+        <style>
+            body.maintenance-active #page-topbar {
+                top: 40px !important;
+            }
+
+            body.maintenance-active .navbar-menu {
+                padding-top: 40px !important;
+            }
+
+            body.maintenance-active .main-content {
+                padding-top: 40px !important;
+            }
+
+            @media (max-width: 991.98px) {
+                body.maintenance-active .main-content {
+                    padding-top: 40px !important;
+                }
+            }
+        </style>
+    @endif
     <!-- Begin page -->
     <div id="layout-wrapper">
         @include('core::layouts.partials.topbar')
@@ -78,11 +189,8 @@
                         <div class="col-12">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                 <h4 class="mb-sm-0">@yield('title')</h4>
-                                <div class="page-title-right">
-                                    <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">{{ config('app.name') }}</a></li>
-                                        <li class="breadcrumb-item active">@yield('title')</li>
-                                    </ol>
+                                <div class="page-title-right d-flex align-items-center">
+                                    @yield('title-actions')
                                 </div>
                             </div>
                         </div>
@@ -127,7 +235,9 @@
     <!-- Notifications -->
 
 
+    @stack('modals')
     @stack('scripts')
+
 </body>
 
 </html>

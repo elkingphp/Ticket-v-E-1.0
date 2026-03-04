@@ -1,0 +1,56 @@
+<?php
+
+return [
+    'maintenance_mode' => 'النظام في وضع الصيانة حالياً (للمعاينة فقط)',
+    'developed_by' => 'التطوير بواسطة',
+    'error_occurred' => 'حدث خطأ',
+    'success' => 'تم بنجاح',
+    'notification_dashboard' => 'لوحة تحكم الإشعارات',
+    'manage_thresholds' => 'إدارة الحدود',
+    'statistics' => 'الإحصائيات',
+    'total_notifications' => 'إجمالي الإشعارات',
+    'unread' => 'غير مقروءة',
+    'archived' => 'مؤرشفة',
+    'active_thresholds' => 'حدود نشطة',
+    'channel_health' => 'صحة قنوات الإشعارات',
+    'channel' => 'القناة',
+    'status' => 'الحالة',
+    'response_time' => 'زمن الاستجابة',
+    'message' => 'الرسالة',
+    'failed_notifications' => 'الإشعارات الفاشلة',
+    'retry' => 'إعادة المحاولة',
+    'maintenance_tools' => 'أدوات الصيانة',
+    'delete' => 'حذف',
+    'edit' => 'تعديل',
+    'save' => 'حفظ',
+    'cancel' => 'إلغاء',
+    'logout' => 'تسجيل الخروج',
+    'login' => 'تسجيل الدخول',
+    'settings' => 'الإعدادات',
+    'lang_arabic' => 'العربية',
+    'lang_english' => 'English',
+
+    'approval_notification_title_requested' => 'طلب موافقة جديد',
+    'approval_notification_body_requested' => 'يوجد طلب جديد بانتظار موافقتك لإجراء عملية ":action" على العنصر: :type (:id)',
+
+    'approval_notification_title_approved' => 'تمت الموافقة على طلبك',
+    'approval_notification_body_approved' => 'تمت الموافقة على طلبك لإجراء عملية ":action" على العنصر: :type (:id)',
+
+    'approval_notification_title_rejected' => 'تم رفض طلبك',
+    'approval_notification_body_rejected' => 'تم رفض طلبك لإجراء عملية ":action" على العنصر: :type (:id)',
+
+    'actions' => [
+        'delete' => 'حذف',
+        'create' => 'إنشاء',
+        'update' => 'تحديث',
+    ],
+    'entities' => [
+        'TicketCategory' => 'تصنيف التذكرة',
+        'TicketStage' => 'مرحلة التذكرة',
+        'TicketStatus' => 'حالة التذكرة',
+        'TicketPriority' => 'أولوية التذكرة',
+        'TicketGroup' => 'مجموعة دعم التذكرة',
+        'TicketComplaint' => 'الشكوى',
+        'Ticket' => 'التذكرة',
+    ],
+];

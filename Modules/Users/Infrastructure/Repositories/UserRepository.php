@@ -90,4 +90,14 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         return $this->model->destroy($ids);
     }
+
+    public function getStatistics(): array
+    {
+        return [
+            'total' => $this->model->count(),
+            'active' => $this->model->where('status', 'active')->count(),
+            'blocked' => $this->model->where('status', 'blocked')->count(),
+            'new_this_month' => $this->model->whereMonth('created_at', now()->month)->count(),
+        ];
+    }
 }

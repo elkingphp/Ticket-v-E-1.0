@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصلاحيات | ETEMS Documentation</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+
+    <header class="doc-header">
+        <h1>Enterprise Ticket & Education Management System</h1>
+    </header>
+
+    <div class="doc-wrapper">
+        <aside class="doc-sidebar">
+            <ul>
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="introduction.html">المقدمة</a></li>
+                <li><a href="system-overview.html">نظرة عامة</a></li>
+                <li><a href="installation.html">التثبيت</a></li>
+                <li><a href="dashboard.html">لوحة التحكم</a></li>
+                <li><a href="tickets-module.html">موديول التذاكر</a></li>
+                <li><a href="education-module.html">موديول التعليم</a></li>
+                <li><a href="attendance-module.html">الحضور والغياب</a></li>
+                <li><a href="roles-permissions.html">الصلاحيات</a></li>
+                <li><a href="workflow.html">دورة العمل</a></li>
+                <li><a href="reports.html">التقارير</a></li>
+                <li><a href="faq.html">الأسئلة الشائعة</a></li>
+                <li><a href="support.html">الدعم الفني</a></li>
+            </ul>
+        </aside>
+
+        <main class="doc-content">
+            <div class="doc-breadcrumbs">
+                <a href="index.html">الرئيسية</a> / الصلاحيات
+            </div>
+
+            <section>
+                <h1>نظام الأدوار والصلاحيات</h1>
+                <p>يستخدم النظام تقنية <strong>RBAC (Role-Based Access Control)</strong> لضمان أن كل مستخدم يصل فقط
+                    للبيانات التي يحتاج إليها.</p>
+
+                <article>
+                    <h2>1. الأدوار (Roles)</h2>
+                    <p>الدور هو حزمة من الصلاحيات تُعطى لمجموعة من المستخدمين. الأدوار الرئيسية تشمل:</p>
+                    <ul>
+                        <li><strong>Super Admin:</strong> وصول غير محدود لكافة أجزاء النظام.</li>
+                        <li><strong>Admin:</strong> إدارة المستخدمين، البرامج، والتقارير.</li>
+                        <li><strong>Agent:</strong> إدارة وحل تذاكر الدعم الفني.</li>
+                        <li><strong>Instructor:</strong> إدارة الحضور والجداول التعليمية.</li>
+                        <li><strong>Trainee:</strong> الطالب، له صلاحية فتح التذاكر وعرض ملفه الشخصي فقط.</li>
+                    </ul>
+                </article>
+
+                <article>
+                    <h2>2. الصلاحيات (Permissions)</h2>
+                    <p>يمكن تخصيص الصلاحيات بدقة متناهية (مثال: مستخدم يملك صلاحية عرض المستخدمين ولكن لا يملك صلاحية
+                        حذفهم).</p>
+                    <div class="alert alert-info">
+                        <strong>تلميح:</strong> لإنشاء دور جديد، توجه إلى "إدارة المستخدمين" > "الأدوار" > "دور جديد" ثم
+                        اختر الصلاحيات المطلوبة من القائمة.
+                    </div>
+                </article>
+
+                <article>
+                    <h2>3. إدارة المستخدمين</h2>
+                    <p>عند إنشاء مستخدم جديد، يجب تحديد:</p>
+                    <ol>
+                        <li>البريد الإلكتروني (المعرف الوحيد).</li>
+                        <li>الدور الوظيفي.</li>
+                        <li>التبعية لبرنامج تعليمي محدد (في حالة الطلاب).</li>
+                    </ol>
+                </article>
+            </section>
+
+            <footer class="doc-footer">
+                <p>&copy; 2026 ETEMS Documentation System</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

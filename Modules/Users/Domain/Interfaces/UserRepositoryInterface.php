@@ -12,4 +12,5 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function advancedSearch(array $filters);
     public function bulkUpdateStatus(array $ids, string $status);
     public function bulkDelete(array $ids);
+    public function getStatistics(): array;
 }

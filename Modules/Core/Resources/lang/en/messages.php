@@ -1,0 +1,55 @@
+<?php
+
+return [
+    'maintenance_mode' => 'System is currently in maintenance mode (Preview only)',
+    'developed_by' => 'Developed By',
+    'error_occurred' => 'An error occurred',
+    'success' => 'Success',
+    'notification_dashboard' => 'Notification Dashboard',
+    'manage_thresholds' => 'Manage Thresholds',
+    'statistics' => 'Statistics',
+    'total_notifications' => 'Total Notifications',
+    'unread' => 'Unread',
+    'archived' => 'Archived',
+    'active_thresholds' => 'Active Thresholds',
+    'channel_health' => 'Channel Health',
+    'channel' => 'Channel',
+    'status' => 'Status',
+    'response_time' => 'Response Time',
+    'message' => 'Message',
+    'failed_notifications' => 'Failed Notifications',
+    'retry' => 'Retry',
+    'maintenance_tools' => 'Maintenance Tools',
+    'delete' => 'Delete',
+    'edit' => 'Edit',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'logout' => 'Logout',
+    'login' => 'Login',
+    'settings' => 'Settings',
+    'lang_arabic' => 'العربية',
+    'lang_english' => 'English',
+
+    'approval_notification_title_requested' => 'New Approval Request',
+    'approval_notification_body_requested' => 'A new request is waiting for your approval to perform ":action" on: :type (:id)',
+
+    'approval_notification_title_approved' => 'Request Approved',
+    'approval_notification_body_approved' => 'Your request to perform ":action" on :type (:id) has been approved.',
+
+    'approval_notification_title_rejected' => 'Request Rejected',
+    'approval_notification_body_rejected' => 'Your request to perform ":action" on :type (:id) has been rejected.',
+
+    'actions' => [
+        'delete' => 'Delete',
+        'create' => 'Create',
+        'update' => 'Update',
+    ],
+    'entities' => [
+        'TicketCategory' => 'Ticket Category',
+        'TicketStage' => 'Ticket Stage',
+        'TicketStatus' => 'Ticket Status',
+        'TicketPriority' => 'Ticket Priority',
+        'TicketGroup' => 'Support Group',
+        'TicketComplaint' => 'Complaint',
+    ],
+];

@@ -32,6 +32,7 @@ class Ticket extends Model
         'locked_by',
         'locked_at',
         'auto_close_at',
+        'lecture_id',
     ];
 
     protected $casts = [
@@ -110,6 +111,16 @@ class Ticket extends Model
     public function activities()
     {
         return $this->hasMany(TicketActivity::class, 'ticket_id')->latest();
+    }
+
+    public function lecture()
+    {
+        return $this->belongsTo(\Modules\Educational\Domain\Models\Lecture::class, 'lecture_id');
+    }
+
+    public function approvalRequests()
+    {
+        return $this->morphMany(\Modules\Core\Domain\Models\ApprovalRequest::class, 'approvable');
     }
 
     public function isOverdue(): bool

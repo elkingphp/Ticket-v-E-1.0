@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دورة العمل | ETEMS Documentation</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .flow-item {
+            border: 2px solid var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 50px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            min-width: 300px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="doc-header">
+        <h1>Enterprise Ticket & Education Management System</h1>
+    </header>
+
+    <div class="doc-wrapper">
+        <aside class="doc-sidebar">
+            <ul>
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="introduction.html">المقدمة</a></li>
+                <li><a href="system-overview.html">نظرة عامة</a></li>
+                <li><a href="installation.html">التثبيت</a></li>
+                <li><a href="dashboard.html">لوحة التحكم</a></li>
+                <li><a href="tickets-module.html">موديول التذاكر</a></li>
+                <li><a href="education-module.html">موديول التعليم</a></li>
+                <li><a href="attendance-module.html">الحضور والغياب</a></li>
+                <li><a href="roles-permissions.html">الصلاحيات</a></li>
+                <li><a href="workflow.html">دورة العمل</a></li>
+                <li><a href="reports.html">التقارير</a></li>
+                <li><a href="faq.html">الأسئلة الشائعة</a></li>
+                <li><a href="support.html">الدعم الفني</a></li>
+            </ul>
+        </aside>
+
+        <main class="doc-content">
+            <div class="doc-breadcrumbs">
+                <a href="index.html">الرئيسية</a> / دورة العمل
+            </div>
+
+            <section>
+                <h1>شرح سير العمليات (Workflow)</h1>
+                <p>يوضح المخطط التالي دورة حياة العمل داخل النظام لعملية تعليمية ودعم فني متكاملة.</p>
+
+                <div class="flow-container">
+                    <div class="flow-item"><strong>1. التأسيس:</strong> المدير ينشئ المسار التدريبي والبرنامج.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>2. القبول:</strong> يتم استيراد الطلاب وتسكينهم في المجموعات.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>3. التنفيذ:</strong> المحاضر يسجل الحضور اليومي للمحاضرات.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>4. الدعم:</strong> طالب يواجه مشكلة ويفتح تذكرة دعم فني.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>5. المعالجة:</strong> الوكيل يحل التذكرة ويقوم بتحديث الحالة.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>6. الرقابة:</strong> النظام يسجل كافة الحركات السابقة في الـ Audit
+                        Logs.</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-item"><strong>7. الإغلاق:</strong> استخراج تقارير الحضور والنتائج النهائية.</div>
+                </div>
+
+                <article>
+                    <h2>تكامل البيانات</h2>
+                    <p>لاحظ أن تذكرة الدعم الفني مرتبطة بملف الطالب، وملف الطالب مرتبط ببرنامج تعليمي محدد، مما يسمح
+                        للوكيل بمعرفة السياق التعليمي للطالب قبل البدء في حل مشكلته.</p>
+                </article>
+            </section>
+
+            <footer class="doc-footer">
+                <p>&copy; 2026 ETEMS Documentation System</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

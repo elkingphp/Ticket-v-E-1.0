@@ -14,7 +14,6 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [];
 
     protected $subscribe = [
-        \Modules\Tickets\Listeners\SendTicketNotifications::class,
         \Modules\Tickets\Listeners\TicketActionSubscriber::class,
     ];
 

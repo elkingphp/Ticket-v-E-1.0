@@ -13,18 +13,19 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         \Modules\Core\Domain\Events\ModuleBooted::class => [
-            \Modules\Core\Infrastructure\Listeners\LogModuleBoot::class ,
+            \Modules\Core\Infrastructure\Listeners\LogModuleBoot::class,
         ],
         \Modules\Core\Domain\Events\AuditLogCreated::class => [
-            \Modules\Core\Application\Listeners\AuditCriticalEventListener::class ,
+            \Modules\Core\Application\Listeners\AuditCriticalEventListener::class,
         ],
         \Modules\Core\Domain\Events\SystemHealthChecked::class => [
-            \Modules\Core\Application\Listeners\SystemHealthListener::class ,
+            \Modules\Core\Application\Listeners\SystemHealthListener::class,
         ],
     ];
 
     protected $subscribe = [
-        \Modules\Core\Application\Listeners\ModuleLifecycleListener::class ,
+        \Modules\Core\Application\Listeners\ModuleLifecycleListener::class,
+        \Modules\Core\Application\Listeners\ApprovalEventListener::class,
     ];
 
     /**

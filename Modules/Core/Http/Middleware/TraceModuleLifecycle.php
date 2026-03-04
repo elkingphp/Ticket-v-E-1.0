@@ -71,7 +71,7 @@ class TraceModuleLifecycle
         }
 
         // 2. Observability: Record Trace
-        $latency = (int)((microtime(true) - $request->attributes->get('ermo_start_time', microtime(true))) * 1000);
+        $latency = (int) ((microtime(true) - $request->attributes->get('ermo_start_time', microtime(true))) * 1000);
         $this->recordTrace($request, $response, $moduleSlug, $latency);
     }
 
@@ -97,13 +97,13 @@ class TraceModuleLifecycle
             // Update Module aggregated metrics
             Module::where('slug', $slug)->update([
                 'total_requests' => DB::raw('total_requests + 1'),
-                'total_latency_ms' => DB::raw("total_latency_ms + {$latency}"),
+                'total_latency_ms' => DB::raw('total_latency_ms + ' . (int) $latency),
             ]);
 
             // Real-time buffer in Redis (Last 50 traces per module for Livewire)
             $redisKey = "ermo:traces:{$slug}";
             $traceData = json_encode([
-                'id' => (string)$requestId,
+                'id' => (string) $requestId,
                 'status' => $response->getStatusCode(),
                 'latency' => $latency,
                 'state' => $state,
@@ -114,8 +114,7 @@ class TraceModuleLifecycle
             Redis::ltrim($redisKey, 0, 49);
             Redis::expire($redisKey, 3600);
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error("ERMO Tracing Failed: " . $e->getMessage());
         }
     }
@@ -123,8 +122,7 @@ class TraceModuleLifecycle
     protected function safeIncrementAndCheckLoad(string $slug, int $max): int
     {
         try {
-            $prefix = config('cache.prefix', 'laravel_cache');
-            $key = "{$prefix}:ermo:active_requests:{$slug}";
+            $key = "ermo:active_requests:{$slug}";
 
             $script = "
                 local current = tonumber(redis.call('GET', KEYS[1]) or '0')
@@ -139,9 +137,8 @@ class TraceModuleLifecycle
                 end
             ";
 
-            return (int)$this->runLua($script, 1, $key, 600, $max);
-        }
-        catch (\Exception $e) {
+            return (int) $this->runLua($script, 1, $key, 600, $max);
+        } catch (\Exception $e) {
             $this->triggerRedisDegraded($e);
             return 0;
         }
@@ -150,8 +147,7 @@ class TraceModuleLifecycle
     protected function safeDecrementActiveRequests(string $slug): void
     {
         try {
-            $prefix = config('cache.prefix', 'laravel_cache');
-            $key = "{$prefix}:ermo:active_requests:{$slug}";
+            $key = "ermo:active_requests:{$slug}";
 
             $script = "
                 local current = tonumber(redis.call('GET', KEYS[1]) or '0')
@@ -162,8 +158,7 @@ class TraceModuleLifecycle
             ";
 
             $this->runLua($script, 1, $key);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 
@@ -190,8 +185,7 @@ class TraceModuleLifecycle
             if ($sha) {
                 return Redis::evalSha($sha, $numKeys, ...$args);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
         }
 
         $result = Redis::eval($script, $numKeys, ...$args);

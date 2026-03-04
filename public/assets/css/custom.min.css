@@ -1,2 +1,9 @@
+.navbar-brand-box {
+    background-color: #405189 !important
+}
+
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] .navbar-brand-box {
+    background-color: #405189 !important
+}
 
 /*# sourceMappingURL=custom.min.css.map */

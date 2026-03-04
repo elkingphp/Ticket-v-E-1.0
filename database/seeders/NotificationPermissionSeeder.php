@@ -11,18 +11,18 @@ class NotificationPermissionSeeder extends Seeder
     /**
      * Run the database seeds.
      * 
-     * هذا الـ Seeder يضيف صلاحية "view notifications" لجميع الأدوار
+     * هذا الـ Seeder يضيف صلاحية "notifications.view" لجميع الأدوار
      * لأن كل مستخدم يجب أن يرى تنبيهاته الخاصة
      */
     public function run(): void
     {
         // 1. إنشاء أو الحصول على Permission
         $permission = Permission::firstOrCreate(
-        ['name' => 'view notifications'],
+        ['name' => 'notifications.view'],
         ['guard_name' => 'web']
         );
 
-        echo "✅ Permission 'view notifications' created/found\n";
+        echo "✅ Permission 'notifications.view' created/found\n";
 
         // 2. الحصول على جميع الأدوار
         $roles = Role::all();

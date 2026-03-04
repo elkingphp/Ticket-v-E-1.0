@@ -5,3 +5,15 @@ Website: https://themesbrand.com/
 Contact: support@themesbrand.com
 File: Custom Css File
 */
+
+/* ─────────────────────────────────────────────────────────────
+   Navbar Brand Box — Override لون الخلفية إلى #405189
+   ───────────────────────────────────────────────────────────── */
+.navbar-brand-box {
+    background-color: #405189 !important;
+}
+
+/* حالة sm sidebar (fixed brand box) */
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] .navbar-brand-box {
+    background-color: #405189 !important;
+}

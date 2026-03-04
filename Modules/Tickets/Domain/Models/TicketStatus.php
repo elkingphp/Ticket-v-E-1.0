@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TicketStatus extends Model
 {
-    use HasFactory;
+    use HasFactory, \Modules\Core\Domain\Traits\MustBeApproved;
 
 
     protected $table = 'tickets.ticket_statuses';

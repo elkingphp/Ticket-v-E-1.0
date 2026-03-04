@@ -20,26 +20,26 @@ class RolesAndPermissionsSeeder extends Seeder
         // Define permissions grouped by module
         $permissionsByModule = [
             'Core' => [
-                'view settings',
-                'manage settings',
-                'view audit logs',
-                'update profile',
-                'view analytics',
-                'view integrity widget',
+                'settings.view',
+                'settings.manage',
+                'audit.view',
+                'profile.update',
+                'analytics.view',
+                'integrity_widget.view',
             ],
             'Users' => [
-                'view users',
-                'create users',
-                'edit users',
-                'delete users',
-                'view roles',
-                'manage roles',
-                'view permissions',
-                'manage permissions',
+                'users.view',
+                'users.create',
+                'users.edit',
+                'users.delete',
+                'roles.view',
+                'roles.manage',
+                'permissions.view',
+                'permissions.manage',
             ],
             'Settings' => [
-                'view settings',
-                'manage settings',
+                'settings.view',
+                'settings.manage',
             ],
         ];
 
@@ -63,30 +63,30 @@ class RolesAndPermissionsSeeder extends Seeder
         // Editor Role
         $editorRole = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
         $editorRole->syncPermissions([
-            'view users',
-            'create users',
-            'edit users',
-            'view roles',
-            'view settings',
-            'view audit logs',
-            'update profile',
-            'view analytics',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'roles.view',
+            'settings.view',
+            'audit.view',
+            'profile.update',
+            'analytics.view',
         ]);
 
         // Regular User Role
         $regularUserRole = Role::firstOrCreate(['name' => 'regular-user', 'guard_name' => 'web']);
         $regularUserRole->syncPermissions([
-            'update profile',
+            'profile.update',
         ]);
 
         // Admin Role (Compatible with existing system)
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions([
-            'view users',
-            'create users',
-            'edit users',
-            'view roles',
-            'view settings',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'roles.view',
+            'settings.view',
         ]);
     }
 }

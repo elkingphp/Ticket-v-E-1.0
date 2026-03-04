@@ -47,7 +47,11 @@ class TicketsServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            \Modules\Tickets\Console\Commands\RefactorTicketPermissions::class,
+            \Modules\Tickets\Console\Commands\RemoveTicketSettingsPermission::class,
+            \Modules\Tickets\Console\Commands\RemoveTicketRecordsPermission::class,
+        ]);
     }
 
     /**

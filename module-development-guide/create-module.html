@@ -4,15 +4,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء موديول جديد | Digilians Guide</title>
+    <title>إنشاء الموديول خطوة بخطوة | Digilians Guide</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .blueprint-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .step-header {
+            background: #1e293b;
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .step-num {
+            background: #3b82f6;
+            color: #fff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .step-body {
+            padding: 1.5rem;
+        }
+
+        .code-block {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-right: 4px solid #3b82f6;
+        }
+
+        .command-block {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
+            margin: 0.5rem 0;
+        }
+
+        .command-block::before {
+            content: "$ ";
+            color: #94a3b8;
+        }
+
+        .validation {
+            background: #f0fdf4;
+            border-right: 4px solid #22c55e;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .validation-title {
+            color: #166534;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .warning {
+            background: #fff1f2;
+            border-right: 4px solid #e11d48;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        ul.checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.checklist li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        ul.checklist li::before {
+            content: "✅";
+        }
+    </style>
 </head>
 
 <body>
     <header>
-        <h1>كيفية إنشاء موديول جديد</h1>
-        <p>الخطوات الأساسية لبناء وحدة برمجية مستقلة</p>
+        <h1>إنشاء موديول جديد (الخريطة التنفيذية)</h1>
+        <p>دليل تنفيذي خطوة بخطوة لإنشاء موديول متوافق 100% مع البنية التحتية</p>
     </header>
 
     <nav>
@@ -25,51 +132,255 @@
         <a href="settings.html">الإعدادات</a>
         <a href="crud-example.html">مثال CRUD</a>
         <a href="velzon-ui.html">واجهة Velzon</a>
-        <a href="en/create-module.html">English</a>
     </nav>
 
-    <div class="container">
-        <h2>الخطوة الأولى: استخدام أمر Artisan</h2>
-        <p>نستخدم حزمة <code>nwidart/laravel-modules</code> لإنشاء الهيكل الأساسي. قم بتشغيل الأمر التالي في الطرفية
-            (Terminal):</p>
-        <pre>php artisan module:make Inventory</pre>
-        <p>هذا الأمر سينشئ مجلد <code>Inventory</code> داخل مجلد <code>Modules</code> الرئيسي.</p>
+    <div class="container blueprint-container">
 
-        <ul class="steps">
-            <li data-step="1">
-                <h3>إعداد autoloading</h3>
-                <p>تأكد من تحديث ملف <code>composer.json</code> داخل الموديول الجديد ليعمل مع نظام الطبقات لدينا. يجب أن
-                    يكون قسم الـ psr-4 كالتالي:</p>
-                <pre>"autoload": {
-    "psr-4": {
-        "Modules\\Inventory\\": "./"
-    }
-}</pre>
-            </li>
-            <li data-step="2">
-                <h3>تحديث المجلدات</h3>
-                <p>قم بإنشاء مجلدات الطبقات الأساسية كما هو متفق عليه:</p>
-                <ul>
-                    <li><code>Domain/Models</code>, <code>Domain/Interfaces</code></li>
-                    <li><code>Application/Services</code>, <code>Application/Policies</code></li>
-                    <li><code>Infrastructure/Repositories</code>, <code>Infrastructure/Database/Migrations</code></li>
-                </ul>
-            </li>
-            <li data-step="3">
-                <h3>تشغيل الأمر</h3>
-                <p>بعد تغيير مسارات الـ autoload، قم بتشغيل الأمر:</p>
-                <pre>composer dump-autoload</pre>
-            </li>
-        </ul>
+        <p>تهدف هذه الوثيقة <strong>العملية (Executable Documentation)</strong> إلى تقديم خطوات خطية ودقيقة، إذا قام
+            المطور باتباعها سينتج موديول صحيح فنياً ومتصل بنظام Audit Log ونظام الـ DomainGraph تلقائياً.</p>
 
-        <div class="alert">
-            <strong>نصيحة:</strong> دائماً ابدأ بإنشاء الهجرات (Migrations) في مجلد
-            <code>Infrastructure/Database/Migrations</code> لتعريف قواعد البيانات الخاصة بموديولك.
+        <!-- Step 1 -->
+        <div class="step-card">
+            <div class="step-header">
+                التحضير والتوليد (Module Initialization)
+                <span class="step-num">الخطوة 01</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> تجهيز بيئة العمل وإنشاء الهيكل الأساسي للوحدة النمطية باستخدام حزمة nWidart.
+                </p>
+                <strong>الأمر:</strong>
+                <div class="command-block">php artisan module:make Inventory</div>
+                <div class="validation">
+                    <div class="validation-title">✅ التحقق:</div>
+                    تأكد من إنشاء مجلد <code>app/Modules/Inventory</code> وتسجيل الموديول بحالة <code>true</code> في ملف
+                    <code>modules_statuses.json</code>.
+                </div>
+            </div>
         </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+            <div class="step-header">
+                تهيئة المعمارية (Folder Structure)
+                <span class="step-num">الخطوة 02</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> فرض حدود الطبقات المؤسسية (Layered Architecture) بإنشاء المجلدات الناقصة لمنع
+                    خلط الأكواد.</p>
+                <strong>الأمر:</strong>
+                <div class="command-block">mkdir -p
+                    app/Modules/Inventory/{Models,Services,Repositories,Http/Requests,Policies,Events,Listeners,Contracts,Graph}
+                </div>
+                <div class="warning">
+                    <strong>تحذير:</strong> يُمنع وضع منطق الأعمال (Business Logic) مباشرة داخل مجلد الـ Http، يجب
+                    تفريغه داخل الـ Services.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+            <div class="step-header">
+                قاعدة البيانات (Database Migration)
+                <span class="step-num">الخطوة 03</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> تعريف جداول البيانات مع الإلزام بإضافة أعمدة التدقيق (Audit) والحذف المنطقي.
+                </p>
+                <strong>الأمر:</strong>
+                <div class="command-block">php artisan module:make-migration create_inventory_items_table Inventory
+                </div>
+                <strong>الكود:</strong>
+                <div class="code-block">
+                    Schema::create('inventory_items', function (Blueprint $table) {
+                    $table->id();
+                    $table->uuid('uuid')->unique(); // إلزامي للترابط المبهم
+                    $table->string('name');
+
+                    // أعمدة التدقيق الإلزامية
+                    $table->foreignId('created_by')->nullable()->constrained('users');
+                    $table->foreignId('updated_by')->nullable()->constrained('users');
+
+                    $table->timestamps();
+                    $table->softDeletes(); // إلزامي للحفاظ على تاريخ البيانات
+                    });
+                </div>
+                <div class="validation">
+                    <div class="validation-title">✅ التحقق:</div>
+                    تشغيل أمر <code>php artisan migrate</code> دون وجود أخطاء صياغة SQL.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-card">
+            <div class="step-header">
+                نموذج البيانات (Eloquent Model)
+                <span class="step-num">الخطوة 04</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> تكوين الكيان (Model) ليدعم الـ Traits المؤسسية أوتوماتيكياً.</p>
+                <strong>الملف:</strong> <code>app/Modules/Inventory/Models/InventoryItem.php</code>
+                <div class="code-block">
+                    namespace Modules\Inventory\Models;
+
+                    use Illuminate\Database\Eloquent\Model;
+                    use Illuminate\Database\Eloquent\SoftDeletes;
+                    use App\Traits\HasUuid;
+                    use App\Traits\LogsActivity;
+
+                    class InventoryItem extends Model
+                    {
+                    use HasUuid, SoftDeletes, LogsActivity;
+
+                    protected $guarded = ['id', 'uuid', 'created_by'];
+
+                    protected $casts = [
+                    'created_at' => 'datetime',
+                    ];
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-card">
+            <div class="step-header">
+                طبقة الخدمة والاستعلامات (Repository & Service)
+                <span class="step-num">الخطوة 05</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> عزل طبقة قاعدة البيانات في Repository وتجميع العمليات المركزية داخل الـ
+                    Service.</p>
+                <strong>ملف المستودع Repository:</strong>
+                <div class="code-block">
+                    namespace Modules\Inventory\Repositories;
+                    use Modules\Inventory\Models\InventoryItem;
+
+                    class InventoryRepository {
+                    public function create(array $data): InventoryItem {
+                    return InventoryItem::create($data);
+                    }
+                    }
+                </div>
+                <strong>ملف الخدمة Service:</strong>
+                <div class="code-block">
+                    namespace Modules\Inventory\Services;
+                    use Modules\Inventory\Repositories\InventoryRepository;
+                    use Illuminate\Support\Facades\DB;
+
+                    class InventoryService {
+                    public function __construct(private InventoryRepository $repo) {}
+
+                    public function createItem(array $data) {
+                    return DB::transaction(function () use ($data) {
+                    return $this->repo->create($data); // Operations happen safely here
+                    });
+                    }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step-card">
+            <div class="step-header">
+                المسارات و المتحكمات (Routes & Controllers)
+                <span class="step-num">الخطوة 06</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> بناء واجهة الاستقبال HTTP.</p>
+                <strong>ملف المسار api.php:</strong>
+                <div class="code-block">
+                    Route::middleware(['auth:sanctum'])->prefix('api/inventory')->group(function () {
+                    Route::post('/', [InventoryController::class, 'store']);
+                    });
+                </div>
+                <strong>ملف المتحكم InventoryController.php:</strong>
+                <div class="code-block">
+                    public function store(StoreInventoryRequest $request, InventoryService $service) {
+                    // المتحكم يقوم بالتوظيف فقط، لا يحتوي على Business Logic
+                    $item = $service->createItem($request->validated());
+                    return response()->json($item, 201);
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="step-card">
+            <div class="step-header">
+                التسجيل بالـ DomainGraph (مهم جداً)
+                <span class="step-num">الخطوة 07</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> تعريف الموديول للنظام بأكمله لربطه بالبيانات المرجعية ولتفعيل البحث العام.
+                </p>
+                <strong>الملف:</strong> إنشاء كلاس للترابط <code>InventoryDomainGraphBuilder.php</code>
+                <div class="code-block">
+                    namespace Modules\Inventory\Graph;
+                    use App\Contracts\DomainGraphNode;
+                    use App\Services\DomainGraph;
+
+                    class InventoryDomainGraphBuilder implements DomainGraphNode {
+                    public function registerNodes(DomainGraph $graph): void {
+                    $graph->addNode('inventory', [
+                    'model' => \Modules\Inventory\Models\InventoryItem::class,
+                    'dependencies' => ['users']
+                    ]);
+                    }
+                    }
+                </div>
+                <div class="validation">
+                    <div class="validation-title">✅ التحقق:</div>
+                    تسجيل هذا الكلاس ضمن مزود الخدمة، واستدعاء الأمر <code>php artisan domain:graph:verify</code>.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 8 -->
+        <div class="step-card">
+            <div class="step-header">
+                مراقبة السلوك (Audit Integration)
+                <span class="step-num">الخطوة 08</span>
+            </div>
+            <div class="step-body">
+                <p><strong>الهدف:</strong> تخزين أثر الموديول في نظام التدقيق الموحد.</p>
+                <strong>الكود (يُستخدم داخل الـ Service):</strong>
+                <div class="code-block">
+                    \App\Services\AuditLoggerService::log(
+                    action: 'created',
+                    model: $item,
+                    actor: auth()->user(),
+                    context: ['ip' => request()->ip()]
+                    );
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Checklist -->
+        <div class="step-card">
+            <div class="step-header" style="background:#047857;">
+                تمت المهمة (Final Flight Pre-Check)
+                <span class="step-num" style="background:#059669;">الختام</span>
+            </div>
+            <div class="step-body">
+                <p>للتأكد أن الموديول سليم بنسبة 100%، راجع القائمة الآتية قبل دمج الكود:</p>
+                <ul class="checklist">
+                    <li>أمر Migration ينفّذ بامتياز بدون انهيار قاعدة البيانات.</li>
+                    <li>الكائنات (Models) تحتوي على SoftDeletes.</li>
+                    <li>تم تكوين المسارات (Routes) محمية تحت طيات تسجيل الدخول.</li>
+                    <li>الملحق البرمجي مسجل بنجاح في مخطط <code>DomainGraph</code>.</li>
+                    <li>تم استدعاء خدمة التدقيق لتوثيق التحركات (Audit Logging).</li>
+                    <li>تحقيق 80%+ اجتياز في الاختبارات الآلية (Pest/PHPUnit).</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <div class="footer">
-        &copy; 2026 Digilians Team.
+        &copy; 2026 Digilians Team. Engineering Documentation.
     </div>
 </body>
 

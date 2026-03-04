@@ -1,13 +1,23 @@
 <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script>
-    function deleteItem(url) {
+    function deleteItem(url, isRequest = false) {
+        let title = "{{ __('tickets::messages.confirm_delete') }}";
+        let text = "{{ __('tickets::messages.delete_warning') }}";
+        let confirmText = "{{ __('tickets::messages.delete_it') }}";
+
+        if (isRequest) {
+            title = "{{ __('tickets::messages.confirm_delete_request') }}";
+            text = "{{ __('tickets::messages.delete_request_warning') }}";
+            confirmText = "{{ __('tickets::messages.request_delete') }}";
+        }
+
         Swal.fire({
-            title: "{{ __('tickets::messages.confirm_delete') }}",
-            text: "{{ __('tickets::messages.delete_warning') }}",
+            title: title,
+            text: text,
             icon: 'warning',
             iconColor: '#f06548',
             showCancelButton: true,
-            confirmButtonText: "{{ __('tickets::messages.delete_it') }}",
+            confirmButtonText: confirmText,
             cancelButtonText: "{{ __('tickets::messages.cancel') }}",
             customClass: {
                 confirmButton: 'btn btn-danger w-xs me-2',

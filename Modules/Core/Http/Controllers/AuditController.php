@@ -13,7 +13,7 @@ class AuditController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:view audit logs'),
+            new Middleware('permission:audit.view'),
         ];
     }
 

@@ -41,7 +41,7 @@ class SettingsService extends BaseService
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $settings = $this->loadSettings();
+        try { $settings = $this->loadSettings(); } catch (\Exception $e) { $settings = collect(); }
         return $settings->get($name, $default);
     }
 

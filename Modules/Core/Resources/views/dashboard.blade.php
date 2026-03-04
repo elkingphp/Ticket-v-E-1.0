@@ -36,7 +36,7 @@
                     </div>
 
                     <!-- Profile Completion (Phase 2) -->
-                    @can('view integrity widget')
+                    @can('integrity_widget.view')
                     <div class="col col-lg border-end">
                         <div class="py-4 px-3">
                             <div class="skeleton-box d-none">
@@ -123,7 +123,7 @@
 </div>
 
 <!-- Charts Row -->
-@can('view analytics')
+@can('analytics.view')
 <div class="row">
     <!-- Activity Trend Chart -->
     <div class="col-lg-6">
@@ -220,14 +220,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // Update Advanced Analytics (Phase 2)
-        @can('view integrity widget')
+        @can('integrity_widget.view')
         if (data.analytics && data.analytics.status === 'success') {
             const completion = data.analytics.data.profile_completion;
             document.getElementById('profileCompletion').textContent = completion;
             document.getElementById('profileProgress').style.width = completion + '%';
             document.getElementById('profileProgress').setAttribute('aria-valuenow', completion);
             
-            @can('view analytics')
+            @can('analytics.view')
             renderGrowthChart(data.analytics.data.growth_trends);
             @endcan
         }
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('criticalAlert').classList.remove('d-none');
             }
 
-            @can('view analytics')
+            @can('analytics.view')
             // Analytics Charts
             renderActivityChart(data.audit.data.trend);
             renderDistributionChart(data.audit.data.distribution);

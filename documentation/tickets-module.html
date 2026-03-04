@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موديول التذاكر | ETEMS Documentation</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+
+    <header class="doc-header">
+        <h1>Enterprise Ticket & Education Management System</h1>
+    </header>
+
+    <div class="doc-wrapper">
+        <aside class="doc-sidebar">
+            <ul>
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="introduction.html">المقدمة</a></li>
+                <li><a href="system-overview.html">نظرة عامة</a></li>
+                <li><a href="installation.html">التثبيت</a></li>
+                <li><a href="dashboard.html">لوحة التحكم</a></li>
+                <li><a href="tickets-module.html">موديول التذاكر</a></li>
+                <li><a href="education-module.html">موديول التعليم</a></li>
+                <li><a href="attendance-module.html">الحضور والغياب</a></li>
+                <li><a href="roles-permissions.html">الصلاحيات</a></li>
+                <li><a href="workflow.html">دورة العمل</a></li>
+                <li><a href="reports.html">التقارير</a></li>
+                <li><a href="faq.html">الأسئلة الشائعة</a></li>
+                <li><a href="support.html">الدعم الفني</a></li>
+            </ul>
+        </aside>
+
+        <main class="doc-content">
+            <div class="doc-breadcrumbs">
+                <a href="index.html">الرئيسية</a> / موديول التذاكر
+            </div>
+
+            <section>
+                <h1>موديول التذاكر (Tickets)</h1>
+                <p>يعد نظام التذاكر هو العصب المسئول عن التواصل وحل المشكلات داخل المؤسسة، حيث يوفر آلية منظمة لتتبع
+                    طلبات المستخدمين.</p>
+
+                <article>
+                    <h2>1. دورة حياة التذكرة</h2>
+                    <p>تمر التذكرة بعدة مراحل حتى الوصول للإغلاق:</p>
+                    <table>
+                        <tr>
+                            <th>المرحلة</th>
+                            <th>الوصف</th>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">Open</span></td>
+                            <td>تذكرة جديدة تم إنشاؤها وتنتظر المراجعة.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">Assigned</span></td>
+                            <td>تم إسناد التذكرة لموظف دعم (Agent) محدد.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">In Progress</span></td>
+                            <td>الموظف يعمل حالياً على حل المشكلة.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">Resolved</span></td>
+                            <td>تم تقديم الحل وبانتظار تأكيد المستخدم.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">Closed</span></td>
+                            <td>تم إغلاق التذكرة نهائياً.</td>
+                        </tr>
+                    </table>
+                </article>
+
+                <article>
+                    <h2>2. التصنيف والقوة (Category & Priority)</h2>
+                    <p>يمكن تصنيف التذاكر بناءً على:</p>
+                    <ul>
+                        <li><strong>المرحلة (Category):</strong> مثل (مشاكل تقنية، طلبات إدارية، استفسارات مالية).</li>
+                        <li><strong>الأولوية (Priority):</strong> (منخفضة، متوسطة، عالية، طارئة) لتحديد سرعة الاستجابة.
+                        </li>
+                    </ul>
+                </article>
+
+                <article>
+                    <h2>3. سجل النشاط (Activity Log)</h2>
+                    <p>داخل كل تذكرة، يوجد سجل تاريخي يوضح:</p>
+                    <ul>
+                        <li>من قام بالرد ومتى.</li>
+                        <li>التغييرات التي طرأت على الحالة (Status Changes).</li>
+                        <li>من قام بتعديل الأولوية.</li>
+                    </ul>
+                </article>
+
+                <div class="alert alert-warning">
+                    <strong>تحذير:</strong> لا يمكن حذف التذاكر نهائياً في النظام للحفاظ على مرجعية البيانات، ولكن يمكن
+                    إغلاقها أو أرشفتها.
+                </div>
+            </section>
+
+            <footer class="doc-footer">
+                <p>&copy; 2026 ETEMS Documentation System</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

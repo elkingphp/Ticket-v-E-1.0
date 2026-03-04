@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified', 'module_status:core'])->group(function ()
             function () {
                 return view('core::dashboard');
             }
-        )->name('dashboard')->middleware('enforce.security');
+        )->name('dashboard')->middleware(['enforce.security', 'permission:core.dashboard.view']);
 
         // Profile Routes (except 2FA)
         Route::get('/profile', [\Modules\Core\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
@@ -55,16 +55,16 @@ Route::middleware(['auth', 'verified', 'module_status:core'])->group(function ()
         Route::post('/profile/cancel-deletion', [\Modules\Core\Http\Controllers\ProfileController::class, 'cancelDeletion'])->name('profile.delete.cancel');
 
         // Audit Logs
-        Route::get('/audit-logs/export', [\Modules\Core\Http\Controllers\AuditController::class, 'export'])->name('audit.export')->middleware(['permission:view audit logs', 'enforce.security']);
-        Route::get('/audit-logs', [\Modules\Core\Http\Controllers\AuditController::class, 'index'])->name('audit.index')->middleware(['permission:view audit logs', 'enforce.security']);
-        Route::get('/audit-logs/{id}', [\Modules\Core\Http\Controllers\AuditController::class, 'show'])->name('audit.show')->middleware(['permission:view audit logs', 'enforce.security']);
+        Route::get('/audit-logs/export', [\Modules\Core\Http\Controllers\AuditController::class, 'export'])->name('audit.export')->middleware(['permission:audit.view', 'enforce.security']);
+        Route::get('/audit-logs', [\Modules\Core\Http\Controllers\AuditController::class, 'index'])->name('audit.index')->middleware(['permission:audit.view', 'enforce.security']);
+        Route::get('/audit-logs/{id}', [\Modules\Core\Http\Controllers\AuditController::class, 'show'])->name('audit.show')->middleware(['permission:audit.view', 'enforce.security']);
 
         // Dashboard Metrics API
-        Route::get('/api/dashboard/metrics', [App\Http\Controllers\Api\DashboardController::class, 'metrics'])->name('dashboard.metrics')->middleware(['permission:view analytics', 'enforce.security']);
+        Route::get('/api/dashboard/metrics', [App\Http\Controllers\Api\DashboardController::class, 'metrics'])->name('dashboard.metrics')->middleware(['permission:analytics.view', 'enforce.security']);
 
         // Notifications
         Route::group(
-            ['prefix' => 'notifications', 'as' => 'notifications.', 'middleware' => ['permission:view notifications', 'enforce.security']],
+            ['prefix' => 'notifications', 'as' => 'notifications.', 'middleware' => ['permission:notifications.view', 'enforce.security']],
             function () {
                 Route::get('/', [\Modules\Core\Http\Controllers\NotificationController::class, 'index'])->name('index');
                 Route::get('/latest', [\Modules\Core\Http\Controllers\NotificationController::class, 'latest'])->name('latest');

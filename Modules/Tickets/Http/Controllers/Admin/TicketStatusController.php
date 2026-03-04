@@ -6,8 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\Tickets\Domain\Models\TicketStatus;
 
-class TicketStatusController extends Controller
+class TicketStatusController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new \Illuminate\Routing\Controllers\Middleware('permission:tickets.statuses.view', only: ['index', 'show']),
+            new \Illuminate\Routing\Controllers\Middleware('permission:tickets.statuses.create', only: ['create', 'store']),
+            new \Illuminate\Routing\Controllers\Middleware('permission:tickets.statuses.update', only: ['edit', 'update']),
+            new \Illuminate\Routing\Controllers\Middleware('permission:tickets.statuses.delete|tickets.statuses.delete_requires_approval', only: ['destroy']),
+        ];
+    }
+
     public function index(Request $request)
     {
         $query = TicketStatus::query();
@@ -59,12 +69,24 @@ class TicketStatusController extends Controller
             ->with('success', __('tickets::messages.messages.updated'));
     }
 
-    public function destroy(TicketStatus $status)
+    public function destroy(Request $request, TicketStatus $status, \Modules\Core\Application\Services\ApprovalService $approvalService)
     {
-        // Add check if status is in use later
+        if (!auth()->user()->can('tickets.statuses.delete') && auth()->user()->can('tickets.statuses.delete_requires_approval')) {
+            if (!$status->pendingApprovalRequest()) {
+                $approvalService->requestApproval(
+                    $status,
+                    'tickets.ticket_statuses',
+                    'delete',
+                    ['reason' => $request->get('reason', 'طلب حذف حالة تذاكر')]
+                );
+            }
+            return redirect()->route('admin.tickets.statuses.index')
+                ->with('success', __('tickets::messages.delete_request_sent'));
+        }
+
         $status->delete();
 
         return redirect()->route('admin.tickets.statuses.index')
-            ->with('success', __('tickets::messages.messages.deleted'));
+            ->with('success', __('tickets::messages.messages.status_deleted'));
     }
 }

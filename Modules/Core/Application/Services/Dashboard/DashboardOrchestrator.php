@@ -42,24 +42,24 @@ class DashboardOrchestrator
                 }
                 );
 
-                // Audit Metrics - Requires 'view audit logs' permission
-                if ($user && $user->can('view audit logs')) {
+                // Audit Metrics - Requires 'audit.view' permission
+                if ($user && $user->can('audit.view')) {
                     $metrics['audit'] = $this->getMetricSafely('audit', function () use ($options) {
                             return $this->auditMetrics->getMetrics($options);
                         }
                         );
                     }
 
-                    // System Health - Requires 'view settings' (admin level)
-                    if ($user && $user->can('view settings')) {
+                    // System Health - Requires 'settings.view' (admin level)
+                    if ($user && $user->can('settings.view')) {
                         $metrics['system'] = $this->getMetricSafely('system', function () use ($options) {
                             return $this->systemHealth->getMetrics($options);
                         }
                         );
                     }
 
-                    // Advanced Analytics (Phase 2 Implementation) - Requires 'view analytics'
-                    if ($user && $user->can('view analytics')) {
+                    // Advanced Analytics (Phase 2 Implementation) - Requires 'analytics.view'
+                    if ($user && $user->can('analytics.view')) {
                         $analytics = app(\App\Services\AnalyticsService::class);
                         $metrics['analytics'] = $this->getMetricSafely('analytics', function () use ($analytics) {
                             return [

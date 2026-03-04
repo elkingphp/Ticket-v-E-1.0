@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}"
+    data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none"
+    data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 <head>
 
@@ -23,7 +25,7 @@
     <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
 
     @vite(['Modules/Core/Resources/assets/sass/app.scss'])
-    
+
     @stack('styles')
 
 </head>
@@ -46,7 +48,13 @@
                                         <div class="position-relative h-100 d-flex flex-column">
                                             <div class="mb-4">
                                                 <a href="/" class="d-block">
-                                                    <img src="{{ asset('assets/images/logo-light.png') }}" alt="" height="18">
+                                                    @if (get_setting('logo_light'))
+                                                        <img src="{{ asset(get_setting('logo_light')) }}" alt=""
+                                                            height="60" style="object-fit: contain;">
+                                                    @else
+                                                        <span
+                                                            class="fs-22 fw-bold text-white">{{ get_setting('site_name', 'DIGILIANS') }}</span>
+                                                    @endif
                                                 </a>
                                             </div>
                                             <div class="mt-auto">
@@ -54,21 +62,32 @@
                                                     <i class="ri-double-quotes-l display-4 text-success"></i>
                                                 </div>
 
-                                                <div id="qoutescarouselIndicators" class="carousel slide" data-bs-ride="carousel">
+                                                <div id="qoutescarouselIndicators" class="carousel slide"
+                                                    data-bs-ride="carousel">
                                                     <div class="carousel-indicators">
-                                                        <button type="button" data-bs-target="#qoutescarouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                                                        <button type="button" data-bs-target="#qoutescarouselIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                                                        <button type="button" data-bs-target="#qoutescarouselIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                                        <button type="button"
+                                                            data-bs-target="#qoutescarouselIndicators"
+                                                            data-bs-slide-to="0" class="active" aria-current="true"
+                                                            aria-label="Slide 1"></button>
+                                                        <button type="button"
+                                                            data-bs-target="#qoutescarouselIndicators"
+                                                            data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                                        <button type="button"
+                                                            data-bs-target="#qoutescarouselIndicators"
+                                                            data-bs-slide-to="2" aria-label="Slide 3"></button>
                                                     </div>
                                                     <div class="carousel-inner text-center text-white-50 pb-5">
                                                         <div class="carousel-item active">
-                                                            <p class="fs-15 fst-italic">" Great! Clean code, clean design, easy for customization. Thanks very much! "</p>
+                                                            <p class="fs-15 fst-italic">" Great! Clean code, clean
+                                                                design, easy for customization. Thanks very much! "</p>
                                                         </div>
                                                         <div class="carousel-item">
-                                                            <p class="fs-15 fst-italic">" The theme is really great with an amazing customer support."</p>
+                                                            <p class="fs-15 fst-italic">" The theme is really great with
+                                                                an amazing customer support."</p>
                                                         </div>
                                                         <div class="carousel-item">
-                                                            <p class="fs-15 fst-italic">" Great! Clean code, clean design, easy for customization. Thanks very much! "</p>
+                                                            <p class="fs-15 fst-italic">" Great! Clean code, clean
+                                                                design, easy for customization. Thanks very much! "</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -106,7 +125,10 @@
                     <div class="col-lg-12">
                         <div class="text-center">
                             <p class="mb-0">&copy;
-                                <script>document.write(new Date().getFullYear())</script> {{ config('app.name') }}. Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesbrand
+                                <script>
+                                    document.write(new Date().getFullYear())
+                                </script> {{ config('app.name') }}. Crafted with <i
+                                    class="mdi mdi-heart text-danger"></i> by Themesbrand
                             </p>
                         </div>
                     </div>

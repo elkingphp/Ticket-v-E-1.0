@@ -28,3 +28,24 @@ npm-debug.log
 yarn-error.log
 public/js/
 public/css/
+
+# ============================================
+# SECURITY: Never commit these files to Git
+# ============================================
+# Database backups (may contain sensitive data)
+*.sql
+*.sql.gz
+*.dump
+
+# Debug/test scripts
+debug_*.html
+cookies.txt
+events_audit.json
+*.result.cache
+
+# Migration scripts (sensitive, CLI-only)
+.migration_scripts/
+
+# Broadcasting config (contains secrets)
+.env.broadcasting
+
