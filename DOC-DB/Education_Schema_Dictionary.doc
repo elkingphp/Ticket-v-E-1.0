@@ -1,0 +1,3533 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8"><title>Education Schema</title>
+<style>
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; text-align: right; }
+th, td { border: 1px solid #718096; padding: 10px; text-align: right; }
+th { background-color: #e2e8f0; font-weight: bold; color: #2d3748; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; padding: 20px; direction: rtl; text-align: right; }
+h1, h2, h3 { color: #2b6cb0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+li { margin-bottom: 5px; }
+pre { background: #edf2f7; padding: 15px; border-radius: 5px; direction: ltr; text-align: left; }
+</style>
+</head>
+<body dir='rtl'>
+<h1>Education System Database Architecture &amp; Technical Documentation</h1>
+<h1>الوثيقة الفنية والبنية المعمارية لقاعدة بيانات النظام التعليمي</h1>
+<p>This document provides a comprehensive, professional, and structured technical documentation for all 31 tables in the <code>education</code> schema.</p>
+<h2>1. Table: <code>attendances</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.attendances_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>lecture_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (lectures)</td>
+<td>No</td>
+<td>Reference to lectures / مرجع لجدول lectures</td>
+</tr>
+<tr>
+<td><code>trainee_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (trainee_profiles)</td>
+<td>No</td>
+<td>Reference to trainee_profiles / مرجع لجدول trainee_profiles</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'absent'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>locked_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>1</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>check_in_time</code></td>
+<td><code>time without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Table: <code>buildings</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.buildings_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>campus_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (campuses)</td>
+<td>No</td>
+<td>Reference to campuses / مرجع لجدول campuses</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. Table: <code>campus_program</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.campus_program_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>campus_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (campuses)</td>
+<td>No</td>
+<td>Reference to campuses / مرجع لجدول campuses</td>
+</tr>
+<tr>
+<td><code>program_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (programs)</td>
+<td>No</td>
+<td>Reference to programs / مرجع لجدول programs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Table: <code>campuses</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.campuses_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>5. Table: <code>company_job_profiles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.company_job_profiles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>company_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (training_companies)</td>
+<td>No</td>
+<td>Reference to training_companies / مرجع لجدول training_companies</td>
+</tr>
+<tr>
+<td><code>job_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (job_profiles)</td>
+<td>No</td>
+<td>Reference to job_profiles / مرجع لجدول job_profiles</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. Table: <code>evaluation_answers</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.evaluation_answers_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>lecture_evaluation_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (lecture_evaluations)</td>
+<td>No</td>
+<td>Reference to lecture_evaluations / مرجع لجدول lecture_evaluations</td>
+</tr>
+<tr>
+<td><code>question_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (evaluation_questions)</td>
+<td>No</td>
+<td>Reference to evaluation_questions / مرجع لجدول evaluation_questions</td>
+</tr>
+<tr>
+<td><code>answer_value</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>answer_rating</code></td>
+<td><code>integer</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>7. Table: <code>evaluation_forms</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.evaluation_forms_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'lecture_feedback'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'draft'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>published_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>form_type_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (evaluation_types)</td>
+<td>No</td>
+<td>Reference to evaluation_types / مرجع لجدول evaluation_types</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Table: <code>evaluation_questions</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.evaluation_questions_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>form_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (evaluation_forms)</td>
+<td>No</td>
+<td>Reference to evaluation_forms / مرجع لجدول evaluation_forms</td>
+</tr>
+<tr>
+<td><code>question_text</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'rating_1_to_5'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>json</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>order_index</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_required</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>9. Table: <code>evaluation_types</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.evaluation_types_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>target_type</code></td>
+<td><code>character varying(50)</code></td>
+<td>YES</td>
+<td><code>'lecture'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>allowed_roles</code></td>
+<td><code>jsonb</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>YES</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>10. Table: <code>floors</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.floors_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>building_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (buildings)</td>
+<td>No</td>
+<td>Reference to buildings / مرجع لجدول buildings</td>
+</tr>
+<tr>
+<td><code>floor_number</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>11. Table: <code>governorates</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.governorates_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name_ar</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>name_en</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>12. Table: <code>groups</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.groups_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>program_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (programs)</td>
+<td>No</td>
+<td>Reference to programs / مرجع لجدول programs</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>capacity</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>20</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>term</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>job_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (job_profiles)</td>
+<td>No</td>
+<td>Reference to job_profiles / مرجع لجدول job_profiles</td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>transferred_to_group_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (groups)</td>
+<td>No</td>
+<td>Reference to groups / مرجع لجدول groups</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(50)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>13. Table: <code>instructor_company_assignments</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.instructor_company_assignments_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>instructor_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (instructor_profiles)</td>
+<td>No</td>
+<td>Reference to instructor_profiles / مرجع لجدول instructor_profiles</td>
+</tr>
+<tr>
+<td><code>company_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (training_companies)</td>
+<td>No</td>
+<td>Reference to training_companies / مرجع لجدول training_companies</td>
+</tr>
+<tr>
+<td><code>job_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (job_profiles)</td>
+<td>No</td>
+<td>Reference to job_profiles / مرجع لجدول job_profiles</td>
+</tr>
+<tr>
+<td><code>assigned_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>14. Table: <code>instructor_profiles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.instructor_profiles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>bio</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>specialization_notes</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>employment_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'contractor'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>arabic_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>english_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>national_id</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>passport_number</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>date_of_birth</code></td>
+<td><code>date</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>gender</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>governorate_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (governorates)</td>
+<td>No</td>
+<td>Reference to governorates / مرجع لجدول governorates</td>
+</tr>
+<tr>
+<td><code>track_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (tracks)</td>
+<td>No</td>
+<td>Reference to tracks / مرجع لجدول tracks</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>15. Table: <code>instructor_session_types</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.instructor_session_types_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>instructor_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (instructor_profiles)</td>
+<td>No</td>
+<td>Reference to instructor_profiles / مرجع لجدول instructor_profiles</td>
+</tr>
+<tr>
+<td><code>session_type_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (session_types)</td>
+<td>No</td>
+<td>Reference to session_types / مرجع لجدول session_types</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>16. Table: <code>job_profile_responsibles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.job_profile_responsibles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>job_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (job_profiles)</td>
+<td>No</td>
+<td>Reference to job_profiles / مرجع لجدول job_profiles</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>17. Table: <code>job_profiles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.job_profiles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>track_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (tracks)</td>
+<td>No</td>
+<td>Reference to tracks / مرجع لجدول tracks</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>18. Table: <code>lecture_evaluations</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.lecture_evaluations_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>lecture_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (lectures)</td>
+<td>No</td>
+<td>Reference to lectures / مرجع لجدول lectures</td>
+</tr>
+<tr>
+<td><code>form_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (evaluation_forms)</td>
+<td>No</td>
+<td>Reference to evaluation_forms / مرجع لجدول evaluation_forms</td>
+</tr>
+<tr>
+<td><code>evaluator_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>evaluator_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>overall_comments</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>form_snapshot</code></td>
+<td><code>jsonb</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>snapshot_hash</code></td>
+<td><code>character(64)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>evaluator_role</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'trainee'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>submitted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>19. Table: <code>lecture_form_assignments</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.lecture_form_assignments_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>lecture_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (lectures)</td>
+<td>No</td>
+<td>Reference to lectures / مرجع لجدول lectures</td>
+</tr>
+<tr>
+<td><code>form_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (evaluation_forms)</td>
+<td>No</td>
+<td>Reference to evaluation_forms / مرجع لجدول evaluation_forms</td>
+</tr>
+<tr>
+<td><code>assigned_by</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>assigned_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>allow_evaluator_types</code></td>
+<td><code>jsonb</code></td>
+<td>NO</td>
+<td><code>'[&quot;trainee&quot;]'::jsonb</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>red_flag_alert_sent_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>20. Table: <code>lectures</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.lectures_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>program_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (programs)</td>
+<td>No</td>
+<td>Reference to programs / مرجع لجدول programs</td>
+</tr>
+<tr>
+<td><code>group_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (groups)</td>
+<td>No</td>
+<td>Reference to groups / مرجع لجدول groups</td>
+</tr>
+<tr>
+<td><code>instructor_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (instructor_profiles)</td>
+<td>No</td>
+<td>Reference to instructor_profiles / مرجع لجدول instructor_profiles</td>
+</tr>
+<tr>
+<td><code>room_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (rooms)</td>
+<td>No</td>
+<td>Reference to rooms / مرجع لجدول rooms</td>
+</tr>
+<tr>
+<td><code>starts_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>ends_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'scheduled'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>1</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>subject</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>recurrence_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>session_type_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (session_types)</td>
+<td>No</td>
+<td>Reference to session_types / مرجع لجدول session_types</td>
+</tr>
+<tr>
+<td><code>supervisor_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>parent_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (lectures)</td>
+<td>No</td>
+<td>Reference to lectures / مرجع لجدول lectures</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>21. Table: <code>programs</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.programs_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'draft'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>starts_at</code></td>
+<td><code>date</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>ends_at</code></td>
+<td><code>date</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>1</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>22. Table: <code>room_types</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.room_types_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'primary'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>icon</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'ri-door-open-line'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sort_order</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>23. Table: <code>rooms</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.rooms_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>floor_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (floors)</td>
+<td>No</td>
+<td>Reference to floors / مرجع لجدول floors</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>capacity</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>room_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>room_status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td><code>1</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>room_type_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (room_types)</td>
+<td>No</td>
+<td>Reference to room_types / مرجع لجدول room_types</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>24. Table: <code>schedule_templates</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.schedule_templates_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>program_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (programs)</td>
+<td>No</td>
+<td>Reference to programs / مرجع لجدول programs</td>
+</tr>
+<tr>
+<td><code>group_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (groups)</td>
+<td>No</td>
+<td>Reference to groups / مرجع لجدول groups</td>
+</tr>
+<tr>
+<td><code>instructor_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (instructor_profiles)</td>
+<td>No</td>
+<td>Reference to instructor_profiles / مرجع لجدول instructor_profiles</td>
+</tr>
+<tr>
+<td><code>room_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (rooms)</td>
+<td>No</td>
+<td>Reference to rooms / مرجع لجدول rooms</td>
+</tr>
+<tr>
+<td><code>day_of_week</code></td>
+<td><code>integer</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>start_time</code></td>
+<td><code>time without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>end_time</code></td>
+<td><code>time without time zone</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>effective_from</code></td>
+<td><code>date</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>effective_until</code></td>
+<td><code>date</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>subject</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>recurrence_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'weekly'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>session_type_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (session_types)</td>
+<td>No</td>
+<td>Reference to session_types / مرجع لجدول session_types</td>
+</tr>
+<tr>
+<td><code>evaluation_form_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (evaluation_forms)</td>
+<td>No</td>
+<td>Reference to evaluation_forms / مرجع لجدول evaluation_forms</td>
+</tr>
+<tr>
+<td><code>allow_evaluator_types</code></td>
+<td><code>jsonb</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>25. Table: <code>session_types</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.session_types_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>26. Table: <code>track_responsibles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.track_responsibles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>track_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (tracks)</td>
+<td>No</td>
+<td>Reference to tracks / مرجع لجدول tracks</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>27. Table: <code>tracks</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.tracks_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td><code>boolean</code></td>
+<td>NO</td>
+<td><code>true</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>28. Table: <code>trainee_documents</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.trainee_documents_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>trainee_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (trainee_profiles)</td>
+<td>No</td>
+<td>Reference to trainee_profiles / مرجع لجدول trainee_profiles</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>file_path</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>file_type</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>file_size</code></td>
+<td><code>integer</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>29. Table: <code>trainee_emergency_contacts</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.trainee_emergency_contacts_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>trainee_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>Yes (trainee_profiles)</td>
+<td>No</td>
+<td>Reference to trainee_profiles / مرجع لجدول trainee_profiles</td>
+</tr>
+<tr>
+<td><code>relation</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>national_id</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>phone2</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>photo_path</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>photo_disk</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>governorate_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (governorates)</td>
+<td>No</td>
+<td>Reference to governorates / مرجع لجدول governorates</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>30. Table: <code>trainee_profiles</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.trainee_profiles_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>national_id</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>religion</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>medical_notes</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>enrollment_status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>arabic_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>english_name</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>secondary_phone</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>nationality</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'egyptian'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>date_of_birth</code></td>
+<td><code>date</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>passport_number</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>governorate_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (governorates)</td>
+<td>No</td>
+<td>Reference to governorates / مرجع لجدول governorates</td>
+</tr>
+<tr>
+<td><code>gender</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>educational_status</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>military_number</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>device_code</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sect</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>job_profile_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (job_profiles)</td>
+<td>No</td>
+<td>Reference to job_profiles / مرجع لجدول job_profiles</td>
+</tr>
+<tr>
+<td><code>program_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (programs)</td>
+<td>No</td>
+<td>Reference to programs / مرجع لجدول programs</td>
+</tr>
+<tr>
+<td><code>group_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>Yes (groups)</td>
+<td>No</td>
+<td>Reference to groups / مرجع لجدول groups</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>31. Table: <code>training_companies</code></h2>
+<h3>Columns / الحقول</h3>
+<table>
+<thead>
+<tr>
+<th>Column (الحقل)</th>
+<th>Type (النوع)</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>FK</th>
+<th>Enum/Check</th>
+<th>Description (الوصف)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>bigint</code></td>
+<td>NO</td>
+<td><code>nextval('education.training_companies_id_seq'::regclass)</code></td>
+<td>No</td>
+<td>No</td>
+<td>Unique Identifier / المعرف الفريد</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Name / الاسم</td>
+</tr>
+<tr>
+<td><code>registration_number</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contact_email</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'active'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Creation time / وقت الإنشاء</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>Last update / آخر تحديث</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td><code>timestamp without time zone</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>website</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td><code>text</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>logo_path</code></td>
+<td><code>character varying(255)</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>logo_disk</code></td>
+<td><code>character varying(255)</code></td>
+<td>NO</td>
+<td><code>'public'::character varying</code></td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>legacy_id</code></td>
+<td><code>bigint</code></td>
+<td>YES</td>
+<td>``</td>
+<td>No</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Entity Relationship Diagram (ERD)</h2>
+<pre><code class="language-mermaid">erDiagram
+    attendances }o--|| lectures : &quot;fk_lecture_id&quot;
+    attendances }o--|| trainee_profiles : &quot;fk_trainee_profile_id&quot;
+    buildings }o--|| campuses : &quot;fk_campus_id&quot;
+    campus_program }o--|| campuses : &quot;fk_campus_id&quot;
+    campus_program }o--|| programs : &quot;fk_program_id&quot;
+    company_job_profiles }o--|| training_companies : &quot;fk_company_id&quot;
+    company_job_profiles }o--|| job_profiles : &quot;fk_job_profile_id&quot;
+    evaluation_answers }o--|| lecture_evaluations : &quot;fk_lecture_evaluation_id&quot;
+    evaluation_answers }o--|| evaluation_questions : &quot;fk_question_id&quot;
+    evaluation_forms }o--|| evaluation_types : &quot;fk_form_type_id&quot;
+    evaluation_questions }o--|| evaluation_forms : &quot;fk_form_id&quot;
+    floors }o--|| buildings : &quot;fk_building_id&quot;
+    groups }o--|| job_profiles : &quot;fk_job_profile_id&quot;
+    groups }o--|| programs : &quot;fk_program_id&quot;
+    groups }o--|| groups : &quot;fk_transferred_to_group_id&quot;
+    instructor_company_assignments }o--|| training_companies : &quot;fk_company_id&quot;
+    instructor_company_assignments }o--|| instructor_profiles : &quot;fk_instructor_profile_id&quot;
+    instructor_company_assignments }o--|| job_profiles : &quot;fk_job_profile_id&quot;
+    instructor_profiles }o--|| governorates : &quot;fk_governorate_id&quot;
+    instructor_profiles }o--|| tracks : &quot;fk_track_id&quot;
+    instructor_session_types }o--|| instructor_profiles : &quot;fk_instructor_profile_id&quot;
+    instructor_session_types }o--|| session_types : &quot;fk_session_type_id&quot;
+    job_profile_responsibles }o--|| job_profiles : &quot;fk_job_profile_id&quot;
+    job_profiles }o--|| tracks : &quot;fk_track_id&quot;
+    lecture_evaluations }o--|| evaluation_forms : &quot;fk_form_id&quot;
+    lecture_evaluations }o--|| lectures : &quot;fk_lecture_id&quot;
+    lecture_form_assignments }o--|| evaluation_forms : &quot;fk_form_id&quot;
+    lecture_form_assignments }o--|| lectures : &quot;fk_lecture_id&quot;
+    lectures }o--|| groups : &quot;fk_group_id&quot;
+    lectures }o--|| instructor_profiles : &quot;fk_instructor_profile_id&quot;
+    lectures }o--|| lectures : &quot;fk_parent_id&quot;
+    lectures }o--|| programs : &quot;fk_program_id&quot;
+    lectures }o--|| rooms : &quot;fk_room_id&quot;
+    lectures }o--|| session_types : &quot;fk_session_type_id&quot;
+    rooms }o--|| floors : &quot;fk_floor_id&quot;
+    rooms }o--|| room_types : &quot;fk_room_type_id&quot;
+    schedule_templates }o--|| evaluation_forms : &quot;fk_evaluation_form_id&quot;
+    schedule_templates }o--|| groups : &quot;fk_group_id&quot;
+    schedule_templates }o--|| programs : &quot;fk_program_id&quot;
+    schedule_templates }o--|| rooms : &quot;fk_room_id&quot;
+    schedule_templates }o--|| session_types : &quot;fk_session_type_id&quot;
+    schedule_templates }o--|| instructor_profiles : &quot;fk_instructor_profile_id&quot;
+    track_responsibles }o--|| tracks : &quot;fk_track_id&quot;
+    trainee_documents }o--|| trainee_profiles : &quot;fk_trainee_profile_id&quot;
+    trainee_emergency_contacts }o--|| governorates : &quot;fk_governorate_id&quot;
+    trainee_emergency_contacts }o--|| trainee_profiles : &quot;fk_trainee_profile_id&quot;
+    trainee_profiles }o--|| governorates : &quot;fk_governorate_id&quot;
+    trainee_profiles }o--|| groups : &quot;fk_group_id&quot;
+    trainee_profiles }o--|| job_profiles : &quot;fk_job_profile_id&quot;
+    trainee_profiles }o--|| programs : &quot;fk_program_id&quot;
+</code></pre>
+<h2>6. Security &amp; Scalability (الأمان والتوسع)</h2>
+<ul>
+<li><strong>Security / الأمان:</strong> Strict foreign key constraints prevent orphan records. Endpoints must validate ownership before interacting with trainee/instructor specific records.</li>
+<li><strong>Scalability / التوسع:</strong> Lectures and Attendances tables are expected to grow rapidly. Implement table partitioning by year/semester. Add composite indexes on <code>group_id</code> + <code>starts_at</code> for faster overlap validation.</li>
+</ul>
+
+</body>
+</html>
