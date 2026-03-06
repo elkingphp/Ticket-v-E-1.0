@@ -480,9 +480,201 @@ class MigrateLegacyData extends Command
     }
     private function phase3Profiles()
     {
+        $this->info("🎓 Phase 3: Profiles (Trainees & Instructors)");
+
+        // A) Instructor Profiles
+        $this->info(" -> Instructor Profiles");
+        $logId = $this->logMigrationStart('instructor_profiles');
+
+        DB::connection($this->legacyConn)->table('instructors')
+            ->orderBy('id')->chunk($this->chunkSize, function ($instructors) use ($logId) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($instructors) . " instructors.");
+                    return;
+                }
+                $inserts = [];
+                foreach ($instructors as $inst) {
+                    $email = strtolower(trim($inst->email));
+                    if (!$email)
+                        continue;
+
+                    $userId = DB::connection($this->targetConn)->table('public.users')->where('email', $email)->value('id');
+                    if (!$userId)
+                        continue;
+
+                    $govId = DB::connection($this->targetConn)->table('education.governorates')->where('legacy_id', $inst->city_id)->value('id');
+                    $trackId = DB::connection($this->targetConn)->table('education.tracks')->where('legacy_id', $inst->track_id)->value('id');
+
+                    $inserts[] = [
+                        'legacy_id' => $inst->id,
+                        'user_id' => $userId,
+                        'governorate_id' => $govId,
+                        'track_id' => $trackId,
+                        'national_id' => $inst->nationalID ? encrypt((string) $inst->nationalID) : null,
+                        'passport_number' => $inst->passport_number ? encrypt((string) $inst->passport_number) : null,
+                        'date_of_birth' => $inst->birthdate,
+                        'gender' => strtolower($inst->gender ?? 'male') === 'male' ? 'male' : 'female',
+                        'employment_type' => 'external',
+                        'status' => strtolower($inst->status ?? 'active') === 'active' ? 'active' : 'inactive',
+                        'arabic_name' => $inst->name_ar,
+                        'english_name' => $inst->name_en ?? $inst->name_ar,
+                        'address' => $inst->address,
+                        'created_at' => Carbon::parse($inst->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($inst->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('education.instructor_profiles', $inserts, ['status', 'arabic_name', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
+
+        // B) Trainee Profiles
+        $this->info(" -> Trainee Profiles");
+        $logId = $this->logMigrationStart('trainee_profiles');
+
+        DB::connection($this->legacyConn)->table('trainees')
+            ->orderBy('id')->chunk($this->chunkSize, function ($trainees) use ($logId) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($trainees) . " trainees.");
+                    return;
+                }
+                $inserts = [];
+                foreach ($trainees as $t) {
+                    $email = strtolower(trim($t->email));
+                    if (!$email)
+                        continue;
+
+                    $userId = DB::connection($this->targetConn)->table('public.users')->where('email', $email)->value('id');
+                    if (!$userId)
+                        continue;
+
+                    $govId = DB::connection($this->targetConn)->table('education.governorates')->where('legacy_id', $t->city_id)->value('id');
+                    $progId = DB::connection($this->targetConn)->table('education.programs')->where('legacy_id', $t->study_program_id)->value('id');
+                    $jobId = DB::connection($this->targetConn)->table('education.job_profiles')->where('legacy_id', $t->track_id)->value('id');
+
+                    // Resolve Group (from group_trainees)
+                    $legacyGroupId = DB::connection($this->legacyConn)->table('group_trainees')
+                        ->where('trainee_id', $t->id)->value('class_group_id');
+                    $groupId = $legacyGroupId ? DB::connection($this->targetConn)->table('education.groups')->where('legacy_id', $legacyGroupId)->value('id') : null;
+
+                    $inserts[] = [
+                        'legacy_id' => $t->id,
+                        'user_id' => $userId,
+                        'program_id' => $progId,
+                        'group_id' => $groupId,
+                        'job_profile_id' => $jobId,
+                        'governorate_id' => $govId,
+                        'national_id' => $t->nationalID ? encrypt((string) $t->nationalID) : null,
+                        'passport_number' => $t->passport_number ? encrypt((string) $t->passport_number) : null,
+                        'religion' => $t->religion ? encrypt((string) $t->religion) : null,
+                        'gender' => strtolower($t->gender ?? 'male') === 'male' ? 'male' : 'female',
+                        'date_of_birth' => $t->birthdate,
+                        'enrollment_status' => strtolower($t->status ?? 'active') === 'active' ? 'active' : 'suspended',
+                        'arabic_name' => $t->name_ar,
+                        'english_name' => $t->name_en ?? $t->name_ar,
+                        'address' => $t->address,
+                        'nationality' => $t->nationality,
+                        'created_at' => Carbon::parse($t->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($t->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('education.trainee_profiles', $inserts, ['enrollment_status', 'arabic_name', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
     }
     private function phase4Operations()
     {
+        $this->info("📚 Phase 4: Operations (Lectures & Attendances)");
+
+        // A) Lectures (From attendance_days)
+        $this->info(" -> Lectures (from attendance_days)");
+        $logId = $this->logMigrationStart('lectures');
+
+        DB::connection($this->legacyConn)->table('attendance_days')
+            ->orderBy('id')->chunk($this->chunkSize, function ($days) use ($logId) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($days) . " lectures.");
+                    return;
+                }
+                $inserts = [];
+                foreach ($days as $d) {
+                    $progId = DB::connection($this->targetConn)->table('education.programs')->where('legacy_id', $d->study_program_id)->value('id');
+                    $groupId = DB::connection($this->targetConn)->table('education.groups')->where('legacy_id', $d->class_group_id)->value('id');
+                    $instId = DB::connection($this->targetConn)->table('education.instructor_profiles')->where('legacy_id', $d->instructor_id)->value('id');
+                    $roomId = DB::connection($this->targetConn)->table('education.rooms')->where('legacy_id', $d->class_room_id)->value('id');
+                    $typeId = DB::connection($this->targetConn)->table('education.session_types')->where('legacy_id', $d->session_type_id)->value('id');
+
+                    // If time is missing, default to 00:00:00
+                    $startTime = $d->time ?? '00:00:00';
+                    $endTime = $d->to_time ?? '23:59:59';
+                    $date = $d->date ?? now()->toDateString();
+
+                    try {
+                        $startsAt = Carbon::parse("$date $startTime")->format('Y-m-d H:i:s');
+                        $endsAt = Carbon::parse("$date $endTime")->format('Y-m-d H:i:s');
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    $inserts[] = [
+                        'legacy_id' => $d->id,
+                        'program_id' => $progId,
+                        'group_id' => $groupId,
+                        'instructor_profile_id' => $instId,
+                        'room_id' => $roomId,
+                        'session_type_id' => $typeId,
+                        'starts_at' => $startsAt,
+                        'ends_at' => $endsAt,
+                        'status' => 'scheduled',
+                        'created_at' => Carbon::parse($d->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($d->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('education.lectures', $inserts, ['starts_at', 'ends_at', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
+
+        // B) Attendances (From attendance_trainees)
+        $this->info(" -> Attendances");
+        $logId = $this->logMigrationStart('attendances');
+
+        DB::connection($this->legacyConn)->table('attendance_trainees')
+            ->orderBy('id')->chunk($this->chunkSize, function ($atts) use ($logId) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($atts) . " attendances.");
+                    return;
+                }
+                $inserts = [];
+                foreach ($atts as $att) {
+                    $traineeId = DB::connection($this->targetConn)->table('education.trainee_profiles')->where('legacy_id', $att->trainee_id)->value('id');
+                    $lectureId = DB::connection($this->targetConn)->table('education.lectures')->where('legacy_id', $att->attendance_day_id)->value('id');
+
+                    if (!$traineeId || !$lectureId)
+                        continue;
+
+                    $inserts[] = [
+                        'legacy_id' => $att->id,
+                        'lecture_id' => $lectureId,
+                        'trainee_profile_id' => $traineeId,
+                        'status' => strtolower($att->status ?? 'absent') === 'presence' ? 'present' : 'absent',
+                        'created_at' => Carbon::parse($att->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($att->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('education.attendances', $inserts, ['status', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
     }
     private function phase5Tickets()
     {
