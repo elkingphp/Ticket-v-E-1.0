@@ -678,16 +678,195 @@ class MigrateLegacyData extends Command
     }
     private function phase5Tickets()
     {
+        $this->info("🎫 Phase 5: Tickets Domain");
+
+        // Prepare PostgreSQL for native UUID generation
+        if (!$this->option('dry-run')) {
+            DB::connection($this->targetConn)->statement("CREATE EXTENSION IF NOT EXISTS pgcrypto;");
+        }
+
+        // A) Map Categories
+        $this->info(" -> Ticket Categories");
+        $logId = $this->logMigrationStart('ticket_categories');
+        $cats = DB::connection($this->legacyConn)->table('subject_tickets')->orderBy('parent_id')->get(); // Nulls first
+        if (!$this->option('dry-run') && $cats->count() > 0) {
+            $inserts = [];
+            foreach ($cats as $cat) {
+                // Find parent target id
+                $parentId = $cat->parent_id ? DB::connection($this->targetConn)->table('tickets.ticket_categories')->where('legacy_id', $cat->parent_id)->value('id') : null;
+                $inserts[] = [
+                    'legacy_id' => $cat->id,
+                    'parent_id' => $parentId,
+                    'name' => $cat->name,
+                    'is_active' => !($cat->is_hidden ?? false),
+                    'created_at' => Carbon::parse($cat->created_at ?? now())->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::parse($cat->updated_at ?? now())->format('Y-m-d H:i:s'),
+                ];
+            }
+            $this->bulkUpsert('tickets.ticket_categories', $inserts, ['name', 'is_active', 'updated_at']);
+        }
+        $this->logMigrationFinish($logId);
+
+        // Map Target Lookups by Names (because no slug column)
+        $statusMap = DB::connection($this->targetConn)->table('tickets.ticket_statuses')->pluck('id', 'name')->toArray();
+        $prioMap = DB::connection($this->targetConn)->table('tickets.ticket_priorities')->pluck('id', 'name')->toArray();
+
+        $resolveStatus = function ($legacyStatusName) use ($statusMap) {
+            $nameStr = mb_strtolower(trim($legacyStatusName));
+            $new = $statusMap['جديد'] ?? $statusMap['مفتوحة'] ?? 1;
+            $open = $statusMap['مفتوحة'] ?? $statusMap['مفتوح'] ?? 1;
+            $prog = $statusMap['جاري المعالجة'] ?? $statusMap['قيد التنفيذ'] ?? 2;
+            $res = $statusMap['تم الحل'] ?? $statusMap['منفذ'] ?? 3;
+            $closed = $statusMap['مغلق'] ?? $statusMap['مغلقة'] ?? $statusMap['تم الحل'] ?? 3;
+
+            if (str_contains($nameStr, 'new') || str_contains($nameStr, 'جديد'))
+                return $new;
+            if (str_contains($nameStr, 'progress') || str_contains($nameStr, 'جاري') || str_contains($nameStr, 'مفتوح'))
+                return $open;
+            if (str_contains($nameStr, 'resolve') || str_contains($nameStr, 'حل') || str_contains($nameStr, 'منفذ'))
+                return $res;
+            if (str_contains($nameStr, 'close') || str_contains($nameStr, 'مغلق'))
+                return $closed;
+            return $new; // Default
+        };
+
+        $resolvePriority = function ($legacyPrioName) use ($prioMap) {
+            $nameStr = mb_strtolower(trim($legacyPrioName));
+            $low = $prioMap['عادي'] ?? $prioMap['منخفض'] ?? 1;
+            $med = $prioMap['متوسط'] ?? $prioMap['متوسطة'] ?? 2;
+            $high = $prioMap['هام'] ?? $prioMap['عالي'] ?? 3;
+            $urg = $prioMap['عاجل جداً'] ?? $prioMap['طوارئ'] ?? $prioMap['هام'] ?? 3;
+
+            if (str_contains($nameStr, 'low') || str_contains($nameStr, 'منخفض') || str_contains($nameStr, 'عادي'))
+                return $low;
+            if (str_contains($nameStr, 'high') || str_contains($nameStr, 'عالي') || str_contains($nameStr, 'هام'))
+                return $high;
+            if (str_contains($nameStr, 'urgent') || str_contains($nameStr, 'طوارئ'))
+                return $urg;
+            return $med; // Default
+        };
+
+        // Cache legacy names to Avoid multiple DB lookups
+        $legacyStatusNames = DB::connection($this->legacyConn)->table('status_tickets')->pluck('name', 'id')->toArray();
+        $legacyPrioNames = DB::connection($this->legacyConn)->table('priority_tickets')->pluck('name', 'id')->toArray();
+
+        // B) Tickets
+        $this->info(" -> Tickets");
+        $logId = $this->logMigrationStart('tickets');
+
+        DB::connection($this->legacyConn)->table('ticket_headers')
+            ->orderBy('id')->chunk($this->chunkSize, function ($tickets) use ($logId, $legacyStatusNames, $legacyPrioNames, $resolveStatus, $resolvePriority) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($tickets) . " tickets.");
+                    return;
+                }
+
+                $inserts = [];
+                foreach ($tickets as $t) {
+                    $userId = DB::connection($this->targetConn)->table('public.users')->where('legacy_id', $t->user_id)->value('id');
+                    if (!$userId)
+                        continue;
+
+                    $catId = DB::connection($this->targetConn)->table('tickets.ticket_categories')->where('legacy_id', $t->subject_id)->value('id');
+                    $lectureId = DB::connection($this->targetConn)->table('education.lectures')->where('legacy_id', $t->attendance_day_id)->value('id');
+
+                    $lStatusName = $legacyStatusNames[$t->status_id] ?? '';
+                    $lPrioName = $legacyPrioNames[$t->priority_id] ?? '';
+
+                    $inserts[] = [
+                        'legacy_id' => $t->id,
+                        // We will use DB::raw('gen_random_uuid()') explicitly during raw insert execution, 
+                        // But bulkUpsert function wraps strings in quotes. 
+                        // So we generate random uuid in PHP for simplicity while achieving the same secure format.
+                        'uuid' => \Illuminate\Support\Str::uuid()->toString(),
+                        'ticket_number' => $t->ticket_number . '-' . $t->id,
+                        'user_id' => $userId,
+                        'subject' => $t->title ?? 'Untitled',
+                        'details' => $t->description ?? '',
+                        'status_id' => $resolveStatus($lStatusName),
+                        'priority_id' => $resolvePriority($lPrioName),
+                        'category_id' => $catId,
+                        'lecture_id' => $lectureId,
+                        'created_at' => Carbon::parse($t->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($t->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('tickets.tickets', $inserts, ['subject', 'details', 'status_id', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
+
+        // C) Threads
+        $this->info(" -> Ticket Threads");
+        $logId = $this->logMigrationStart('ticket_threads');
+
+        DB::connection($this->legacyConn)->table('ticket_detals')
+            ->orderBy('id')->chunk($this->chunkSize, function ($threads) use ($logId) {
+                if ($this->option('dry-run')) {
+                    $this->info("   [DryRun] Would UPSERT " . count($threads) . " threads.");
+                    return;
+                }
+                $inserts = [];
+                foreach ($threads as $th) {
+                    $ticketId = DB::connection($this->targetConn)->table('tickets.tickets')->where('legacy_id', $th->ticket_id)->value('id');
+                    if (!$ticketId)
+                        continue;
+
+                    $userId = DB::connection($this->targetConn)->table('public.users')->where('legacy_id', $th->created_by)->value('id');
+
+                    $inserts[] = [
+                        'legacy_id' => $th->id,
+                        'ticket_id' => $ticketId,
+                        'user_id' => $userId, // Might be null if agent
+                        'content' => $th->notes ?? '',
+                        'is_internal' => $th->is_internal ?? false,
+                        'type' => 'message',
+                        'created_at' => Carbon::parse($th->created_at ?? now())->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::parse($th->updated_at ?? now())->format('Y-m-d H:i:s'),
+                    ];
+                }
+                if (!empty($inserts)) {
+                    $this->bulkUpsert('tickets.ticket_threads', $inserts, ['content', 'updated_at']);
+                    $this->logMigrationProgress($logId, count($inserts));
+                }
+            });
+        $this->logMigrationFinish($logId);
     }
     private function phase7Reindex()
     {
-        $this->info("⚡ Phase 7: Rebuilding Indexes and Vacuuming...");
+        $this->info("⚡ Phase 7: Rebuilding Schema Indexes and Vacuuming...");
         if (!$this->option('dry-run')) {
-            DB::connection($this->targetConn)->statement("VACUUM ANALYZE public.users;");
-            DB::connection($this->targetConn)->statement("VACUUM ANALYZE education.governorates;");
+            DB::connection($this->targetConn)->statement("REINDEX SCHEMA tickets;");
+            DB::connection($this->targetConn)->statement("REINDEX SCHEMA education;");
+            DB::connection($this->targetConn)->statement("REINDEX SCHEMA public;");
+            DB::connection($this->targetConn)->statement("VACUUM ANALYZE;");
+            $this->info("✅ PostgreSQL Planner Statistics Updated successfully.");
         }
     }
     private function phase8IntegrityVerification()
     {
+        $this->info("🛡️ Phase 8: Data Integrity Verification");
+
+        $legUsers = DB::connection($this->legacyConn)->table('users')->whereNotNull('email')->where('email', '!=', '')->count();
+        $newUsers = DB::connection($this->targetConn)->table('public.users')->count();
+        $this->info(" -> Identity Verification: Legacy Users ($legUsers) | New Users ($newUsers)");
+
+        $legTickets = DB::connection($this->legacyConn)->table('ticket_headers')->count();
+        $newTickets = DB::connection($this->targetConn)->table('tickets.tickets')->count();
+        $this->info(" -> Ticket Verification: Legacy Tickets ($legTickets) | New Tickets ($newTickets)");
+
+        // FK Check for orphan tickets without categories
+        $orphanTicketsCount = DB::connection($this->targetConn)
+            ->table('tickets.tickets')
+            ->whereNull('category_id')
+            ->count();
+        if ($orphanTicketsCount > 0) {
+            $this->warn(" ⚠️ Warning: Found $orphanTicketsCount orphaned tickets missing category mapping.");
+        } else {
+            $this->info(" ✅ All tickets perfectly mapped to taxonomy.");
+        }
+
     }
 }
