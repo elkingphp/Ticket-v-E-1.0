@@ -439,7 +439,7 @@ class MigrateLegacyData extends Command
     /**
      * Helper to Bulk Upsert safely into Postgres
      */
-    private function bulkUpsert($table, array $data, array $updateCols)
+    private function bulkUpsert($table, array $data, array $updateCols, string $conflictTarget = 'legacy_id')
     {
         if (empty($data))
             return;
@@ -456,7 +456,7 @@ class MigrateLegacyData extends Command
                     $rowVals[] = 'NULL';
                 else {
                     // Escape for Postgres
-                    $safeVal = str_replace("'", "''", $val);
+                    $safeVal = str_replace("'", "''", (string) $val);
                     $rowVals[] = "'$safeVal'";
                 }
             }
@@ -472,11 +472,16 @@ class MigrateLegacyData extends Command
         $updateSql = implode(', ', $updateStmts);
 
         // Run statement
-        DB::connection($this->targetConn)->statement("
-            INSERT INTO $table ($columns)
-            VALUES $valuesSql
-            ON CONFLICT (legacy_id) DO UPDATE SET $updateSql
-        ");
+        try {
+            DB::connection($this->targetConn)->statement("
+                INSERT INTO $table ($columns)
+                VALUES $valuesSql
+                ON CONFLICT ($conflictTarget) DO UPDATE SET $updateSql
+            ");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Bulk Upsert failed on $table: " . $e->getMessage());
+            throw $e;
+        }
     }
     private function phase3Profiles()
     {
@@ -503,18 +508,17 @@ class MigrateLegacyData extends Command
                         continue;
 
                     $govId = DB::connection($this->targetConn)->table('education.governorates')->where('legacy_id', $inst->city_id)->value('id');
-                    $trackId = DB::connection($this->targetConn)->table('education.tracks')->where('legacy_id', $inst->track_id)->value('id');
 
                     $inserts[] = [
                         'legacy_id' => $inst->id,
                         'user_id' => $userId,
                         'governorate_id' => $govId,
-                        'track_id' => $trackId,
+                        'track_id' => null,
                         'national_id' => $inst->nationalID ? encrypt((string) $inst->nationalID) : null,
                         'passport_number' => $inst->passport_number ? encrypt((string) $inst->passport_number) : null,
                         'date_of_birth' => $inst->birthdate,
                         'gender' => strtolower($inst->gender ?? 'male') === 'male' ? 'male' : 'female',
-                        'employment_type' => 'external',
+                        'employment_type' => 'contractor',
                         'status' => strtolower($inst->status ?? 'active') === 'active' ? 'active' : 'inactive',
                         'arabic_name' => $inst->name_ar,
                         'english_name' => $inst->name_en ?? $inst->name_ar,
@@ -653,12 +657,19 @@ class MigrateLegacyData extends Command
                     return;
                 }
                 $inserts = [];
+                $seen = [];
                 foreach ($atts as $att) {
                     $traineeId = DB::connection($this->targetConn)->table('education.trainee_profiles')->where('legacy_id', $att->trainee_id)->value('id');
                     $lectureId = DB::connection($this->targetConn)->table('education.lectures')->where('legacy_id', $att->attendance_day_id)->value('id');
 
                     if (!$traineeId || !$lectureId)
                         continue;
+
+                    // Prevent cardinality violation from duplicates in the same payload
+                    $tuple = "{$lectureId}_{$traineeId}";
+                    if (isset($seen[$tuple]))
+                        continue;
+                    $seen[$tuple] = true;
 
                     $inserts[] = [
                         'legacy_id' => $att->id,
@@ -670,7 +681,7 @@ class MigrateLegacyData extends Command
                     ];
                 }
                 if (!empty($inserts)) {
-                    $this->bulkUpsert('education.attendances', $inserts, ['status', 'updated_at']);
+                    $this->bulkUpsert('education.attendances', $inserts, ['status', 'updated_at'], 'lecture_id, trainee_profile_id');
                     $this->logMigrationProgress($logId, count($inserts));
                 }
             });
@@ -692,18 +703,14 @@ class MigrateLegacyData extends Command
         if (!$this->option('dry-run') && $cats->count() > 0) {
             $inserts = [];
             foreach ($cats as $cat) {
-                // Find parent target id
-                $parentId = $cat->parent_id ? DB::connection($this->targetConn)->table('tickets.ticket_categories')->where('legacy_id', $cat->parent_id)->value('id') : null;
                 $inserts[] = [
                     'legacy_id' => $cat->id,
-                    'parent_id' => $parentId,
                     'name' => $cat->name,
-                    'is_active' => !($cat->is_hidden ?? false),
                     'created_at' => Carbon::parse($cat->created_at ?? now())->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::parse($cat->updated_at ?? now())->format('Y-m-d H:i:s'),
                 ];
             }
-            $this->bulkUpsert('tickets.ticket_categories', $inserts, ['name', 'is_active', 'updated_at']);
+            $this->bulkUpsert('tickets.ticket_categories', $inserts, ['name', 'updated_at']);
         }
         $this->logMigrationFinish($logId);
 
@@ -821,8 +828,7 @@ class MigrateLegacyData extends Command
                         'ticket_id' => $ticketId,
                         'user_id' => $userId, // Might be null if agent
                         'content' => $th->notes ?? '',
-                        'is_internal' => $th->is_internal ?? false,
-                        'type' => 'message',
+                        'type' => ($th->is_internal ?? false) ? 'internal_note' : 'message',
                         'created_at' => Carbon::parse($th->created_at ?? now())->format('Y-m-d H:i:s'),
                         'updated_at' => Carbon::parse($th->updated_at ?? now())->format('Y-m-d H:i:s'),
                     ];
