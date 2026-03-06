@@ -16,7 +16,8 @@ class MigrateLegacyData extends Command
     protected $signature = 'migrate:legacy 
                             {--step=all : The phase to execute (all, 0, 1, 2, 3, 4, 5, 8)}
                             {--dry-run : Simulate queries without committing}
-                            {--resume= : Resume from a specific phase}';
+                            {--resume= : Resume from a specific phase}
+                            {--rollback : Delete all migrated legacy data from target}';
 
     protected $description = 'Enterprise Data Migration from ts_digi to digi_test';
 
@@ -27,6 +28,11 @@ class MigrateLegacyData extends Command
     public function handle()
     {
         ini_set('memory_limit', '2048M');
+
+        if ($this->option('rollback')) {
+            $this->rollbackLegacyData();
+            return;
+        }
 
         $this->info("🚀 Starting Enterprise Legacy Migration");
         if ($this->option('dry-run')) {
@@ -191,10 +197,13 @@ class MigrateLegacyData extends Command
                 }
 
                 $inserts = [];
+                $seenEmails = [];
                 foreach ($users as $u) {
                     $email = strtolower(trim($u->email));
-                    if (empty($email))
+                    if (empty($email) || isset($seenEmails[$email])) {
                         continue;
+                    }
+                    $seenEmails[$email] = true;
 
                     $nameParts = explode(' ', $u->name, 2);
                     $firstName = $nameParts[0];
@@ -225,7 +234,7 @@ class MigrateLegacyData extends Command
                     // ON CONFLICT ON legacy_id or email
                     // Since both must be unique, we conflict on legacy_id, but email is also unique 
                     // To handle unique constraint smoothly during upsert in Enterprise:
-                    $updateFields = ['first_name', 'last_name', 'password', 'phone'];
+                    $updateFields = ['legacy_id', 'first_name', 'last_name', 'password', 'phone'];
                     $upsertUpdates = implode(', ', array_map(fn($f) => "\"$f\" = EXCLUDED.\"$f\"", $updateFields));
 
                     // Generate Values
@@ -253,7 +262,7 @@ class MigrateLegacyData extends Command
                         $this->logMigrationProgress($logId, count($inserts));
                     } catch (\Exception $e) {
                         $this->logMigrationProgress($logId, 0, count($inserts));
-                        $this->warn("User Batch Error: " . $e->getMessage());
+                        $this->warn("User Batch Error: " . substr($e->getMessage(), 0, 500));
                     }
                 }
             });
@@ -874,5 +883,63 @@ class MigrateLegacyData extends Command
             $this->info(" ✅ All tickets perfectly mapped to taxonomy.");
         }
 
+    }
+
+    private function rollbackLegacyData()
+    {
+        if (!$this->confirm("⚠️ DANGER: This will delete ALL legacy migrated data from the digi_test target. Are you absolutely sure?")) {
+            $this->info("Rollback cancelled.");
+            return;
+        }
+
+        $this->info("🧹 Starting Safe Rollback of Legacy Data...");
+
+        DB::connection($this->targetConn)->statement('SET session_replication_role = replica;');
+
+        try {
+            // Delete Tickets Tier
+            DB::connection($this->targetConn)->statement("DELETE FROM tickets.ticket_threads WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM tickets.tickets WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM tickets.ticket_categories WHERE legacy_id IS NOT NULL;");
+            $this->info(" ✅ Tickets Tier rolled back.");
+
+            // Delete Operations Tier
+            DB::connection($this->targetConn)->statement("DELETE FROM education.attendances WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.lectures WHERE legacy_id IS NOT NULL;");
+            $this->info(" ✅ Operations Tier rolled back.");
+
+            // Delete Profiles Tier
+            DB::connection($this->targetConn)->statement("DELETE FROM education.trainee_profiles WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.instructor_profiles WHERE legacy_id IS NOT NULL;");
+            $this->info(" ✅ Profiles Tier rolled back.");
+
+            // Delete Infrastructure Tier
+            DB::connection($this->targetConn)->statement("DELETE FROM education.groups WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.programs WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.rooms WHERE legacy_id IS NOT NULL;");
+
+            // Floors and Buildings were not explicitly given legacy_id, they depend on campuses with legacy keys
+            DB::connection($this->targetConn)->statement("DELETE FROM education.floors WHERE building_id IN (SELECT id FROM education.buildings WHERE campus_id IN (SELECT id FROM education.campuses WHERE legacy_id IS NOT NULL));");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.buildings WHERE campus_id IN (SELECT id FROM education.campuses WHERE legacy_id IS NOT NULL);");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.campuses WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.governorates WHERE legacy_id IS NOT NULL;");
+            $this->info(" ✅ Infrastructure Tier rolled back.");
+
+            // Delete Identity / Users (Also removes their roles assignment manually via Spatie pivot)
+            DB::connection($this->targetConn)->statement("DELETE FROM public.model_has_roles WHERE model_id IN (SELECT id FROM public.users WHERE legacy_id IS NOT NULL) AND model_type = 'App\\Models\\User';");
+            DB::connection($this->targetConn)->statement("DELETE FROM public.users WHERE legacy_id IS NOT NULL;");
+            $this->info(" ✅ Identity Tier rolled back (including SPATIE assignments).");
+
+            // Empty Migration Logs
+            DB::connection($this->targetConn)->table('migration_logs')->truncate();
+            $this->info(" ✅ Migration Logs Cleared.");
+
+        } catch (\Exception $e) {
+            $this->error("❌ Rollback Failed: " . $e->getMessage());
+        }
+
+        DB::connection($this->targetConn)->statement('SET session_replication_role = DEFAULT;');
+
+        $this->info("🎊 Rollback process completed successfully. The databases are now clean from legacy dependencies.");
     }
 }
