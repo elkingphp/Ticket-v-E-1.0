@@ -310,7 +310,7 @@ class MigrateLegacyData extends Command
     {
         $this->info("🏢 Phase 2: Educational Infrastructure (Campuses, Rooms, Programs, Groups)");
 
-        // A) Campuses
+        // A) Campuses (Locations)
         $this->info(" -> Campuses (From branch_locations)");
         $logId = $this->logMigrationStart('campuses');
         $locations = DB::connection($this->legacyConn)->table('branch_locations')->where('branch_type', 'LOCATION')->get();
@@ -331,8 +331,53 @@ class MigrateLegacyData extends Command
         }
         $this->logMigrationFinish($logId);
 
-        // B) Default Building and Floor injected invisibly 
-        // We will do this inside the migration of rooms to ensure every room has a floor.
+        // A2) Buildings
+        $this->info(" -> Buildings (From branch_locations)");
+        $logId = $this->logMigrationStart('buildings');
+        $buildings = DB::connection($this->legacyConn)->table('branch_locations')->where('branch_type', 'BUILDING')->get();
+        if (!$this->option('dry-run') && $buildings->count() > 0) {
+            $inserts = [];
+            foreach ($buildings as $bldg) {
+                $campusId = DB::connection($this->targetConn)->table('education.campuses')->where('legacy_id', $bldg->parent_id)->value('id');
+                if (!$campusId)
+                    continue;
+                $inserts[] = [
+                    'legacy_id' => $bldg->id,
+                    'campus_id' => $campusId,
+                    'name' => $bldg->name,
+                    'code' => $bldg->code ?? ('BLDG-' . $bldg->id),
+                    'status' => 'active',
+                    'created_at' => Carbon::parse($bldg->created_at ?? now())->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::parse($bldg->updated_at ?? now())->format('Y-m-d H:i:s'),
+                ];
+            }
+            $this->bulkUpsert('education.buildings', $inserts, ['name', 'updated_at']);
+        }
+        $this->logMigrationFinish($logId);
+
+        // A3) Floors
+        $this->info(" -> Floors (From branch_locations)");
+        $logId = $this->logMigrationStart('floors');
+        $floors = DB::connection($this->legacyConn)->table('branch_locations')->where('branch_type', 'FLOOR')->get();
+        if (!$this->option('dry-run') && $floors->count() > 0) {
+            $inserts = [];
+            foreach ($floors as $flr) {
+                $buildingId = DB::connection($this->targetConn)->table('education.buildings')->where('legacy_id', $flr->parent_id)->value('id');
+                if (!$buildingId)
+                    continue;
+                $inserts[] = [
+                    'legacy_id' => $flr->id,
+                    'building_id' => $buildingId,
+                    'name' => $flr->name,
+                    'floor_number' => ($flr->code ?? 'FLR') . '-' . $flr->id,
+                    'status' => 'active',
+                    'created_at' => Carbon::parse($flr->created_at ?? now())->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::parse($flr->updated_at ?? now())->format('Y-m-d H:i:s'),
+                ];
+            }
+            $this->bulkUpsert('education.floors', $inserts, ['name', 'updated_at']);
+        }
+        $this->logMigrationFinish($logId);
 
         // C) Rooms
         $this->info(" -> Rooms (From class_rooms)");
@@ -340,39 +385,36 @@ class MigrateLegacyData extends Command
         $rooms = DB::connection($this->legacyConn)->table('class_rooms')->get();
 
         if (!$this->option('dry-run') && $rooms->count() > 0) {
-            // Because Rooms require Floors which require Buildings which require Campuses,
-            // we will create a dummy "Main Building" and "Ground Floor" for each campus.
 
+            // Dummy Building and Floor for loose campuses (that rooms are directly connected to)
             DB::connection($this->targetConn)->statement("
-                INSERT INTO education.buildings (name, code, campus_id, status, created_at, updated_at)
-                SELECT 'Main Building', 'MAIN-' || legacy_id, id, 'active', NOW(), NOW()
+                INSERT INTO education.buildings (name, code, campus_id, status, created_at, updated_at, legacy_id)
+                SELECT 'Main Building', 'MAIN-' || legacy_id, id, 'active', NOW(), NOW(), -legacy_id
                 FROM education.campuses
-                ON CONFLICT DO NOTHING;
+                ON CONFLICT (legacy_id) DO NOTHING;
             ");
-
             DB::connection($this->targetConn)->statement("
-                INSERT INTO education.floors (name, floor_number, building_id, status, created_at, updated_at)
-                SELECT 'Ground Floor', 'G', id, 'active', NOW(), NOW()
+                INSERT INTO education.floors (name, floor_number, building_id, status, created_at, updated_at, legacy_id)
+                SELECT 'Ground Floor', 'G', id, 'active', NOW(), NOW(), legacy_id
                 FROM education.buildings
-                ON CONFLICT DO NOTHING;
+                WHERE legacy_id < 0
+                ON CONFLICT (legacy_id) DO NOTHING;
             ");
 
             $inserts = [];
             foreach ($rooms as $room) {
-                // Find target campus via legacy_id
-                $campusId = DB::connection($this->targetConn)
-                    ->table('education.campuses')
-                    ->where('legacy_id', $room->branch_location_id)
-                    ->value('id');
-
-                if (!$campusId)
+                // To resolve where the room belongs, we find its legacy branch_location_id mapping
+                $locQuery = DB::connection($this->legacyConn)->table('branch_locations')->where('id', $room->branch_location_id)->first();
+                if (!$locQuery)
                     continue;
 
-                $floorId = DB::connection($this->targetConn)
-                    ->table('education.floors')
-                    ->join('education.buildings', 'education.floors.building_id', '=', 'education.buildings.id')
-                    ->where('education.buildings.campus_id', $campusId)
-                    ->value('education.floors.id');
+                $floorId = null;
+                if ($locQuery->branch_type === 'FLOOR') {
+                    $floorId = DB::connection($this->targetConn)->table('education.floors')->where('legacy_id', $room->branch_location_id)->value('id');
+                } elseif ($locQuery->branch_type === 'LOCATION') {
+                    // It connects to dummy floor with negative legacy_id matching location
+                    $floorId = DB::connection($this->targetConn)->table('education.floors')->where('legacy_id', -$room->branch_location_id)->value('id');
+                }
 
                 if (!$floorId)
                     continue;
@@ -510,11 +552,30 @@ class MigrateLegacyData extends Command
                 foreach ($instructors as $inst) {
                     $email = strtolower(trim($inst->email));
                     if (!$email)
-                        continue;
+                        $email = "inst_{$inst->id}@digi.test";
 
                     $userId = DB::connection($this->targetConn)->table('public.users')->where('email', $email)->value('id');
-                    if (!$userId)
-                        continue;
+                    if (!$userId) {
+                        $nameParts = explode(' ', $inst->name_en ?? $inst->name_ar, 2);
+                        $firstName = $nameParts[0] ?: 'Instructor';
+                        $lastName = $nameParts[1] ?? 'Missing';
+
+                        $userId = DB::connection($this->targetConn)->table('public.users')->insertGetId([
+                            'first_name' => $firstName,
+                            'last_name' => $lastName,
+                            'username' => $email,
+                            'email' => $email,
+                            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // 'password'
+                            'phone' => empty($inst->phone) ? '00' . $inst->id : substr($inst->phone, 0, 15),
+                            'status' => 'active',
+                            'language' => 'ar',
+                            'theme_mode' => 'light',
+                            'timezone' => 'Africa/Cairo',
+                            'security_risk_level' => 'low',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
 
                     $govId = DB::connection($this->targetConn)->table('education.governorates')->where('legacy_id', $inst->city_id)->value('id');
 
@@ -557,11 +618,30 @@ class MigrateLegacyData extends Command
                 foreach ($trainees as $t) {
                     $email = strtolower(trim($t->email));
                     if (!$email)
-                        continue;
+                        $email = "trainee_{$t->id}@digi.test";
 
                     $userId = DB::connection($this->targetConn)->table('public.users')->where('email', $email)->value('id');
-                    if (!$userId)
-                        continue;
+                    if (!$userId) {
+                        $nameParts = explode(' ', $t->name_en ?? $t->name_ar, 2);
+                        $firstName = $nameParts[0] ?: 'Trainee';
+                        $lastName = $nameParts[1] ?? 'Missing';
+
+                        $userId = DB::connection($this->targetConn)->table('public.users')->insertGetId([
+                            'first_name' => $firstName,
+                            'last_name' => $lastName,
+                            'username' => $email,
+                            'email' => $email,
+                            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // 'password'
+                            'phone' => empty($t->phone) ? '00T' . $t->id : substr($t->phone, 0, 15),
+                            'status' => 'active',
+                            'language' => 'ar',
+                            'theme_mode' => 'light',
+                            'timezone' => 'Africa/Cairo',
+                            'security_risk_level' => 'low',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
 
                     $govId = DB::connection($this->targetConn)->table('education.governorates')->where('legacy_id', $t->city_id)->value('id');
                     $progId = DB::connection($this->targetConn)->table('education.programs')->where('legacy_id', $t->study_program_id)->value('id');
@@ -918,9 +998,9 @@ class MigrateLegacyData extends Command
             DB::connection($this->targetConn)->statement("DELETE FROM education.programs WHERE legacy_id IS NOT NULL;");
             DB::connection($this->targetConn)->statement("DELETE FROM education.rooms WHERE legacy_id IS NOT NULL;");
 
-            // Floors and Buildings were not explicitly given legacy_id, they depend on campuses with legacy keys
-            DB::connection($this->targetConn)->statement("DELETE FROM education.floors WHERE building_id IN (SELECT id FROM education.buildings WHERE campus_id IN (SELECT id FROM education.campuses WHERE legacy_id IS NOT NULL));");
-            DB::connection($this->targetConn)->statement("DELETE FROM education.buildings WHERE campus_id IN (SELECT id FROM education.campuses WHERE legacy_id IS NOT NULL);");
+            // Floors and Buildings were explicitly given legacy_id (either positive real id or negative dummy id)
+            DB::connection($this->targetConn)->statement("DELETE FROM education.floors WHERE legacy_id IS NOT NULL;");
+            DB::connection($this->targetConn)->statement("DELETE FROM education.buildings WHERE legacy_id IS NOT NULL;");
             DB::connection($this->targetConn)->statement("DELETE FROM education.campuses WHERE legacy_id IS NOT NULL;");
             DB::connection($this->targetConn)->statement("DELETE FROM education.governorates WHERE legacy_id IS NOT NULL;");
             $this->info(" ✅ Infrastructure Tier rolled back.");
